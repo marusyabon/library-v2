@@ -7,8 +7,8 @@ class BooksModel {
 	}
 
 	getDataFromServer(id) {
-		const user_id = {user_id: id};
-		return webix.ajax().get(this._url, user_id);
+		const userId = {userId: id};
+		return webix.ajax().get(this._url, userId);
 	}
 
 	addItem(data) {
