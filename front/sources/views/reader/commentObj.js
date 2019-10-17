@@ -12,11 +12,11 @@ export default class Comment {
 	saveComment (commentInput, parentCommentId) {
 		const commentText = commentInput.getValue();
 		const comment = {
-			'user_id': this.userId,
-			'book_id': this.bookId,
+			'userId': this.userId,
+			'bookId': this.bookId,
 			'content': commentText,
 			'commentDate': new Date(),
-			'comment_id': parentCommentId || 0
+			'commentId': parentCommentId || 0
 		};
 
 		commentsModel.addItem(comment).then((response) => {
@@ -97,7 +97,7 @@ export default class Comment {
 			padding: { left: 10 },
 			rows: [
 				{
-					view: "template",
+					view: 'template',
 					autoheight: true,
 					borderless: true,
 					css: 'template',

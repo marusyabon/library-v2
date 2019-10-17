@@ -18,7 +18,7 @@ export default class Library extends JetView {
 
 		const dtable = {
 			view: 'datatable',
-			id: 'dt_library',
+			id: 'dtLibrary',
 			select: true,
 			columns: [
 				{
@@ -26,13 +26,13 @@ export default class Library extends JetView {
 					hidden: true,
 				},
 				{
-					id: 'book_title',
+					id: 'bookTitle',
 					sort: 'text',
 					fillspace: 1,
 					header: ['Title', {content: 'textFilter'}]
 				},
 				{
-					id: 'author_name',
+					id: 'authorName',
 					sort: 'text',
 					fillspace: 1,
 					header: ['Author', {content: 'textFilter'}]
@@ -45,22 +45,22 @@ export default class Library extends JetView {
 					header: ['Genres', {content: 'selectFilter'}]
 				},
 				{
-					id: 'country_of_publication',
+					id: 'countryOfPublication',
 					sort: 'text',
 					width: 80,
 					css: 'center',
 					header: ['Country', {content: 'selectFilter'}]
 				},
 				{
-					id: 'year_of_publication',
+					id: 'yearOfPublication',
 					sort: 'date',
 					width: 80,
 					css: 'center',
-					format: webix.Date.dateToStr("%Y"),
-					header: ['Year', {content: 'dateRangeFilter'}]
+					format: webix.Date.dateToStr('%Y'),
+					header: ['Year', {content:"dateRangeFilter"}]
 				},
 				{
-					id: 'available_copies',
+					id: 'availableCopies',
 					width: 80,
 					css: 'center',
 					header: 'Available'
@@ -114,7 +114,7 @@ export default class Library extends JetView {
 	}
 
 	async init() {
-		this.grid = $$('dt_library');
+		this.grid = $$('dtLibrary');
 
 		switch (this.libraryConfig.role) {
 			case 'reader': 
@@ -129,18 +129,19 @@ export default class Library extends JetView {
 		await this.getData();
 		await this.getFiles();
 		this.checkFiles();		
-
 		this.grid.parse(this.booksArr);
 		this._bookCard = this.ui(this.bookCard);
 	}
 
 	async getData() {		
-		const user_id = this.getParam("id", true);
-		const dbData = await booksModel.getDataFromServer(user_id);
+		const userId = this.getParam("id", true);
+		const dbData = await booksModel.getDataFromServer(userId);
+		
 		let booksArr = dbData.json();
-
+		let date;
 		booksArr = booksArr.map((el) => {
-			el.year_of_publication = new Date(el.year_of_publication);
+			date = el.yearOfPublication;
+			el.yearOfPublication = date ? new Date(date) : '';
 			return el;
 		});
 		this.booksArr = booksArr;
@@ -170,8 +171,9 @@ export default class Library extends JetView {
 	}
 
 	removeBook(id) {
-		booksModel.removeItem(id);
-		return this.grid.remove(id);
+		booksModel.removeItem(id).then(() => {
+			this.grid.remove(id);
+		});		
 	}
 
 	addBook() {

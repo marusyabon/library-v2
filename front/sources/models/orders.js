@@ -18,7 +18,7 @@ class OrdersModel {
 	}
 
 	updateUserOrders(ordersArr, userId) {
-		webix.ajax().put(this._url, {orders: ordersArr, user_id: userId});
+		webix.ajax().put(this._url, {orders: ordersArr, userId: userId});
 	}
 
 	removeItem(id) {

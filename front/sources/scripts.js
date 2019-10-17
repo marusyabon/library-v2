@@ -1,4 +1,4 @@
-import {SUCCESS} from './consts';
+import {SUCCESS_SQL, SUCCESS_MONGO} from './consts';
 
 const toggleElement = (condition, element) => {
 	if (condition) {
@@ -13,9 +13,9 @@ const addItem = (Model, data, successAction) => {
 	Model.addItem(data).then((response) => {
 
 		const status = response.json().serverStatus;
-		if(status == SUCCESS) {
-			Model.getDataFromServer().then(() => {
-				successAction();
+		if(status == SUCCESS_SQL || SUCCESS_MONGO) {
+			Model.getDataFromServer().then((data) => {
+				successAction(data);
 			});			
 		}
 	});
@@ -25,7 +25,7 @@ const updateItem = (Model, data, successAction) => {
 	Model.updateItem(data).then((response) => {
 
 		const status = response.json().serverStatus;
-		if(status == SUCCESS) {
+		if(status == SUCCESS_SQL || SUCCESS_MONGO) {
 			successAction();
 		}
 	});
@@ -44,19 +44,19 @@ const formatDate = (dbDate) => {
 	const commentsHours = new Date(dbDate).getHours();
 	const commentsDateTime = new Date(dbDate);
 
-	let formatDate = webix.Date.strToDate("%i:%s");
+	let formatDate = webix.Date.strToDate('%i:%s');
 
 	if (currentYear > commentsYear) {
-		formatDate = webix.Date.dateToStr("%d-%m-%y");
+		formatDate = webix.Date.dateToStr('%d-%m-%y');
 	}
 	else if(currentMonth > commentsMonth) {
-		formatDate = webix.Date.dateToStr("%m-%d");
+		formatDate = webix.Date.dateToStr('%m-%d');
 	}
 	else if(currentDay > commentsDay) {
-		formatDate = webix.Date.dateToStr("%D, %H:%i");
+		formatDate = webix.Date.dateToStr('%D, %H:%i');
 	}
 	else if (currentHours > commentsHours){
-		formatDate = webix.Date.dateToStr("%H:%i");
+		formatDate = webix.Date.dateToStr('%H:%i');
 	}
 	else {
 		const time = (currentDateTime - commentsDateTime)/60000;
@@ -68,7 +68,7 @@ const formatDate = (dbDate) => {
 };
 
 webix.protoUI({
-	name: "activeList",
+	name: 'activeList',
 	defaults: {
 		autoheight: true,
 		borderless: true,

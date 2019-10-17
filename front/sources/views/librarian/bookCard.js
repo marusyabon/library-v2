@@ -22,16 +22,17 @@ export default class BookCard extends JetView {
 			view: 'form',
 			borderless: true,
 			elements: [
-				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'book_title' },
-				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'author_name' },
+				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'bookTitle' },
+				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'authorName' },
 				{ view: 'combo', label: 'Genres', labelWidth: 130, width: 310, labelAlign: 'right', name: 'genres', options: [
 					'', 'Fiction', 'Fantasy', 'Thriller', 'Horror', 'Mystery', 'Historical', 'Westerns', 'Family', 'Dark comedy'
 				]},
-				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'country_of_publication' },
-				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishing_house' },
-				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'available_copies' },
-				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'number_of_pages' },
-				{ view: 'text', label: 'Cover photo', labelWidth: 130, width: 310, labelAlign: 'right', name: 'cover_photo' }
+				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'countryOfPublication' },
+				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishingHouse' },
+				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'availableCopies' },
+				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'numberOfPages' },
+				{ view: 'datepicker', label: 'Year of publication', labelWidth: 130, width: 310, labelAlign: 'right', type: 'year', format: '%Y', name: 'yearOfPublication' },
+				{ view: 'text', label: 'Cover photo', labelWidth: 130, width: 310, labelAlign: 'right', name: 'coverPhoto' }
 			]
 		};
 
@@ -43,8 +44,8 @@ export default class BookCard extends JetView {
 			autosend: false,
 			width: 150,
 			formData: () => ({
-				user_id: this.userId,
-				book_id: this.bookId
+				userId: this.userId,
+				bookId: this.bookId
 			}),
 			accept: 'text/plain, application/pdf, .doc, .docx',
 			upload: 'http://localhost:3000/files/upload/text',
@@ -68,8 +69,8 @@ export default class BookCard extends JetView {
 			width: 150,
 			formData: () => {
 				return {
-					user_id: this.userId,
-					book_id: this.bookId
+					userId: this.userId,
+					bookId: this.bookId
 				};
 			},
 			accept: '.mp3',
@@ -88,7 +89,7 @@ export default class BookCard extends JetView {
 		const availableTextFiles = {
 			view: 'activeList',
 			localId: 'availableTextFiles',
-			template: `#name# <span class='list_button'><i class = 'fas fa-times'></i></span>`,
+			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
 			on: {
 				onItemClick: (id) => {
 					//remove file and record in DB
@@ -97,10 +98,9 @@ export default class BookCard extends JetView {
 		};
 
 		const availableAudioFiles = {
-			view: "activeList",
-			localId: "availableAudioFiles",
-			template: "#name#" +
-					"<span class='list_button'><i class = 'fas fa-times'></i></span>",
+			view: 'activeList',
+			localId: 'availableAudioFiles',
+			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
 		};
 
 		const saveBtn = {
@@ -163,7 +163,7 @@ export default class BookCard extends JetView {
 		this.isNew = book ? false : true;
 		this.book = book || '';
 		this.bookId = book ? book.id : '';
-		this.userId = this.getParam("id", true);
+		this.userId = this.getParam('id', true);
 
 		filesModel.getItems(this.bookId).then((dbData) => {
 			const filesArr = dbData.json();
@@ -199,8 +199,9 @@ export default class BookCard extends JetView {
 	saveForm() {
 		const data = this.form.getValues();
 
-		const successAction = () => {
+		const successAction = (data) => {
 			this.webix.message('Success');
+			$$('dtLibrary').parse(data.json());
 			this.hideWindow();
 		};
 

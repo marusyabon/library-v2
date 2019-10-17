@@ -1,7 +1,7 @@
 import { JetView } from 'webix-jet';
 import likesModel from '../../models/likes';
 import {toggleElement} from '../../scripts'; 
-import {DUMMYCOVER, SUCCESS} from '../../consts'; 
+import {DUMMYCOVER, SUCCESS_SQL, SUCCESS_MONGO} from '../../consts'; 
 import filesModel from '../../models/files';
 import ordersModel from '../../models/orders';
 import CommentClass from './commentObj';
@@ -23,21 +23,20 @@ export default class BookCard extends JetView {
 			localId: 'bookCardReader',			
 			view: 'form',
 			elements: [
-				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'book_title', readonly: true },
-				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'author_name', readonly: true },
+				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'bookTitle', readonly: true },
+				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'authorName', readonly: true },
 				{ view: 'text', label: 'Genres', labelWidth: 130, width: 310, labelAlign: 'right', name: 'genres', readonly: true },
-				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'country_of_publication', readonly: true },
-				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishing_house', readonly: true },
-				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'available_copies', readonly: true },
-				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'number_of_pages', readonly: true }
+				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'countryOfPublication', readonly: true },
+				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishingHouse', readonly: true },
+				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'availableCopies', readonly: true },
+				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'numberOfPages', readonly: true }
 			]			
 		};
 
 		const availableTextFiles = {
 			view: 'activeList',
 			localId: 'availableTextFiles',
-			template: "#name#" +
-					"<span class='list_button'><i class = 'fas fa-download'></i></span>",
+			template: '#name#<span class="list_button"><i class = "fas fa-download"></i></span>',
 			on: {
 				onItemClick: (id) => {
 					const bookName = this.$$('availableTextFiles').getItem(id).name;
@@ -50,8 +49,8 @@ export default class BookCard extends JetView {
 		};
 
 		const availableAudioFiles = {
-			view: "activeList",
-			localId: "availableAudioFiles",
+			view: 'activeList',
+			localId: 'availableAudioFiles',
 			type:{
 				height:100
 			},
@@ -183,7 +182,7 @@ export default class BookCard extends JetView {
 		this.commentLayout = this.$$('commentLayout');
 		this.book = book;
 		this.bookId = book.id;
-		this.userId = this.getParam("id", true);
+		this.userId = this.getParam('id', true);
 		this.Comment = new CommentClass(this.userId, this.bookId, this.commentLayout);
 		
 		this.clearForm();
@@ -196,7 +195,7 @@ export default class BookCard extends JetView {
 		
 		toggleElement(book.book_file, this.$$('downloadBook'));
 		toggleElement(book.available_copies, this.$$('orderBook'));
-		this.toggleLike(book.user_id == this.userId);
+		this.toggleLike(book.userId == this.userId);
 		this.toggleOrder(book.order_date);
 
 		this.getRoot().show();
@@ -226,14 +225,14 @@ export default class BookCard extends JetView {
 
 	orderBook() {
 		const order = {
-			user_id: this.userId,
-			book_id: this.bookId,
-			order_date: new Date()
+			userId: this.userId,
+			bookId: this.bookId,
+			orderDate: new Date()
 		};
 
 		ordersModel.addOrder(order).then((response) => {
 			const status = response.json().serverStatus;
-			if(status == SUCCESS) {
+			if(status == SUCCESS_SQL || SUCCESS_MONGO) {
 				this.setOrderedVal();
 			}
 		});
@@ -261,7 +260,7 @@ export default class BookCard extends JetView {
 	}
 
 	likeBook() {
-		if(this.book.user_id == this.userId) {
+		if(this.book.userId == this.userId) {
 			likesModel.removeLike(this.userId, this.bookId).then((response) => {
 				const status = response.json().serverStatus;
 				if(status == SUCCESS) {

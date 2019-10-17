@@ -38,11 +38,11 @@ export default class Settings extends JetView {
 	}
 
 	init() {
-		const id = this.getParam("id", true);
+		const id = this.getParam('id', true);
 
 		usersModel.getItem(id).then((data) => {
 			const userData = data.json()[0];
-			userData.birth_date = new Date (userData.birth_date);
+			userData.birthDate = new Date (userData.birthDate);
 			this.$$('userDataForm').setValues(userData);
 		});	
 	}
