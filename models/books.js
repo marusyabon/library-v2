@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
-const BookssSchema = new Schema({
+const BooksSchema = new Schema({
 	coverPhoto: String,
 	bookTitle: String,
 	numberOfPages: Number,
@@ -14,7 +14,7 @@ const BookssSchema = new Schema({
 	isFiles: Boolean
 });
 
-BookssSchema.set('toJSON', {
+BooksSchema.set('toJSON', {
 	virtuals: true,
 	transform: function (doc, ret) {
 		delete ret._id;
@@ -22,6 +22,6 @@ BookssSchema.set('toJSON', {
 	}
 });
 
-const Book = mongoose.model('Book', BookssSchema);
+const Book = mongoose.model('Book', BooksSchema);
 
 export default Book;

@@ -199,9 +199,9 @@ export default class BookCard extends JetView {
 	saveForm() {
 		const data = this.form.getValues();
 
-		const successAction = (data) => {
+		const successAction = (newData) => {
 			this.webix.message('Success');
-			$$('dtLibrary').parse(data.json());
+			$$('dtLibrary').parse(newData.json());
 			this.hideWindow();
 		};
 

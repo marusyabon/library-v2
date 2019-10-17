@@ -5,75 +5,70 @@ import mysql from 'mysql2';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
-	const userId = req.query.userId;
-	try {
-		const books = await Book.find({});
-
-
-	}
-	catch (err) {
-		res.status(500);
-	}
-	// Book.find({}, function (err, results) {
-	// 	if(!err) {
-	// 		res.status(200).send(results);
-	// 	}
-	// 	else {
-			
-	// 	}			
-	// });
-	const query = mysql.format('SELECT books.*, (SELECT count(*) FROM likes where likes.book_id = books.id) count_likes, likes.user_id, orders.order_date FROM books LEFT OUTER JOIN likes ON books.id = likes.book_id and likes.user_id = ? LEFT OUTER JOIN orders ON books.id = orders.book_id and orders.user_id = ?', [userId, userId], [bookId, userId]);
-	connection.query(query,
-		function (err, results) {
-			if(!err) {
-				res.status(200).send(results);
-			}
-			else {
-				res.status(500);
-			}			
-		}
-	);
-});
-
-router.post('/', function (req, res) {
-	const book = new Book(req.body);
-	book.save((err, item) => {
-		const response = {};
-		if (err) {
-			response.status = 'error';
-			response.data = err;
+router.get('/', (req, res) => {
+	Book.find({}, (err, data) => {
+		if (!err) {
+			res.send(data);
 		}
 		else {
-			response.status = 'server';
-			response.data = item;
+			res.send({status: 'error'});
+		}
+	});
+});
+
+router.post('/', (req, res) => {
+	const book = new Book(req.body);
+	book.save((err, results) => {
+		const response = {};
+		if (!err) {
+			response.serverStatus = 200;
+			response.data = results;
+		}
+		else {
+			response.serverStatus = 500;
 		}
 		res.send(response);
 	});
 });
 
-router.put('/', function (req, res, next) {
+router.put('/', (req, res) => {
 	Book.findOneAndUpdate(
-		{id: req.body},
-		{},
-		function (err, results) {
+		{_id: req.body.id},
+		{
+			$set: {
+				ebook: req.body.ebook,
+				bookTitle: req.body.bookTitle,
+				authorName: req.body.authorName,
+				genres: req.body.genres,
+				countryOfPublication: req.body.countryOfPublication,
+				publishingHouse: req.body.publishingHouse,
+				availableCopies: req.body.availableCopies,
+				numberOfPages: req.body.numberOfPages,
+				yearOfPublication: req.body.yearOfPublication,
+				coverPhoto: req.body.coverPhoto
+			}
+		},
+		(err, results) => {
+			const response = {};
 			if (!err) {
-				res.send(results);
+				response.serverStatus = 200;
+				response.data = results;
 			}
 			else {
-				console.log(err);
-				res.status(500);
+				response.serverStatus = 500;
 			}
+			console.log(response)
+			res.send(response);
 		}
 	);
 });
 
-router.delete('/', function (req, res) {
+router.delete('/', (req, res) => {
 	Book.findOneAndDelete(
-		{ id: req.body.row },
+		{ _id: req.body.row },
 		function (err, result) {
 			if (!err) {
-				res.send(result);
+				res.status(200).send(result);
 			}
 			else {
 				res.status(500);

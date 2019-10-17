@@ -13,6 +13,7 @@ const addItem = (Model, data, successAction) => {
 	Model.addItem(data).then((response) => {
 
 		const status = response.json().serverStatus;
+
 		if(status == SUCCESS_SQL || SUCCESS_MONGO) {
 			Model.getDataFromServer().then((data) => {
 				successAction(data);
@@ -25,8 +26,11 @@ const updateItem = (Model, data, successAction) => {
 	Model.updateItem(data).then((response) => {
 
 		const status = response.json().serverStatus;
+
 		if(status == SUCCESS_SQL || SUCCESS_MONGO) {
-			successAction();
+			Model.getDataFromServer().then((data) => {
+				successAction(data);
+			});
 		}
 	});
 };
