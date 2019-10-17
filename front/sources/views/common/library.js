@@ -136,20 +136,24 @@ export default class Library extends JetView {
 	async getData() {		
 		const userId = this.getParam("id", true);
 		const dbData = await booksModel.getDataFromServer(userId);
-		
-		let booksArr = dbData.json();
-		let date;
-		booksArr = booksArr.map((el) => {
-			date = el.yearOfPublication;
-			el.yearOfPublication = date ? new Date(date) : '';
-			return el;
-		});
-		this.booksArr = booksArr;
+		this.booksArr = this.convertDates(dbData.json());
 	}
 
 	async getFiles() {
 		const dbData = await filesModel.getDataFromServer();
 		this.filesArr = dbData.json();						
+	}
+
+	convertDates(booksArr) {
+		let date;
+
+		booksArr = booksArr.map((el) => {
+			date = el.yearOfPublication;
+			el.yearOfPublication = date ? new Date(date) : '';
+			return el;
+		});
+
+		return booksArr;		
 	}
 
 	checkFiles() {

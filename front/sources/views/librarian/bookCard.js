@@ -3,6 +3,7 @@ import booksModel from '../../models/books';
 import { DUMMYCOVER } from '../../consts';
 import { toggleElement, addItem, updateItem } from '../../scripts'; 
 import filesModel from '../../models/files';
+import Library from '../common/library';
 
 export default class BookCard extends JetView {
 	config() {
@@ -201,7 +202,8 @@ export default class BookCard extends JetView {
 
 		const successAction = (newData) => {
 			this.webix.message('Success');
-			$$('dtLibrary').parse(newData.json());
+			const booksArr = Library.prototype.convertDates(newData.json());
+			$$('dtLibrary').parse(booksArr);
 			this.hideWindow();
 		};
 
