@@ -11,8 +11,12 @@ class BooksModel {
 		return webix.ajax().get(this._url, userId);
 	}
 
-	addItem(data) {
-		return webix.ajax().post(this._url, data);
+	getBook(bookId) {
+		return webix.ajax().get(`${this._url}${bookId}`);
+	}
+
+	addItem(data, func) {
+		return webix.ajax().post(this._url, data, func);
 	}
 
 	updateItem(data) {

@@ -1,5 +1,3 @@
-import {SUCCESS_SQL, SUCCESS_MONGO} from './consts';
-
 const toggleElement = (condition, element) => {
 	if (condition) {
 		element.show();
@@ -9,33 +7,25 @@ const toggleElement = (condition, element) => {
 	}
 };
 
-const addItem = (Model, data, successAction) => {
-	Model.addItem(data).then((response) => {
+function addItem (Model, data, successAction) {
+	Model.addItem(data).then(() => {
+		Model.getDataFromServer().then((data) => {
+			successAction(data);
+		});			
+	}).fail((xhr) => {
 
-		const status = response.json().serverStatus;
-
-		if(status == SUCCESS_SQL || SUCCESS_MONGO) {
-			Model.getDataFromServer().then((data) => {
-				successAction(data);
-			});			
-		}
 	});
-};
+}
 
-const updateItem = (Model, data, successAction) => {
-	Model.updateItem(data).then((response) => {
-
-		const status = response.json().serverStatus;
-
-		if(status == SUCCESS_SQL || SUCCESS_MONGO) {
-			Model.getDataFromServer().then((data) => {
-				successAction(data);
-			});
-		}
+function updateItem (Model, data, successAction) {
+	Model.updateItem(data).then(() => {
+		Model.getDataFromServer().then((data) => {
+			successAction(data);
+		});
 	});
-};
+}
 
-const formatDate = (dbDate) => {
+function formatDate (dbDate) {
 	const currentYear = new Date().getFullYear();
 	const currentMonth = new Date().getMonth();
 	const currentDay = new Date().getDate();
@@ -69,7 +59,19 @@ const formatDate = (dbDate) => {
 	
 	return formatDate(new Date(dbDate));
 
-};
+}
+
+function convertDatesInArray(arr) {
+	let date;
+
+	arr = arr.map((el) => {
+		date = el.yearOfPublication;
+		el.yearOfPublication = date ? new Date(date) : '';
+		return el;
+	});
+
+	return arr;		
+}
 
 webix.protoUI({
 	name: 'activeList',
@@ -82,4 +84,4 @@ webix.protoUI({
 	}
 }, webix.ui.list);
 
-export {toggleElement, addItem, updateItem, formatDate};
+export {toggleElement, addItem, updateItem, formatDate, convertDatesInArray};

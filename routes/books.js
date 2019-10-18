@@ -16,12 +16,23 @@ router.get('/', (req, res) => {
 	});
 });
 
+router.get('/:bookId', (req, res) => {
+	Book.find({_id: req.params.bookId}, (err, data) => {
+		if (!err) {
+			res.send(data);
+		}
+		else {
+			res.send({status: 'error'});
+		}
+	});
+});
+
 router.post('/', (req, res) => {
 	const book = new Book(req.body);
 	book.save((err, results) => {
 		const response = {};
 		if (!err) {
-			response.serverStatus = 200;
+			// response.serverStatus = 200;
 			response.data = results;
 		}
 		else {
@@ -57,7 +68,7 @@ router.put('/', (req, res) => {
 			else {
 				response.serverStatus = 500;
 			}
-			console.log(response)
+			console.log(response);
 			res.send(response);
 		}
 	);

@@ -1,6 +1,7 @@
-import { JetView } from 'webix-jet';
+import {JetView} from 'webix-jet';
 import booksModel from '../../models/books';
 import filesModel from '../../models/files';
+import {convertDatesInArray} from '../../scripts';
 
 export default class Library extends JetView {
 	constructor(app, libraryConfig, bookCard) {
@@ -97,10 +98,10 @@ export default class Library extends JetView {
 			],
 			onClick: {
 				'fa-eye': (e, id) => {
-					this.showBookCard(id);
+					this._bookCard.showPopup(id);
 				},
 				'fa-edit': (e, id) => {
-					this.showBookCard(id);
+					this._bookCard.showPopup(id);
 				},
 				'fa-trash': (e, id) => {
 					this.removeBook(id);
@@ -128,7 +129,7 @@ export default class Library extends JetView {
 		this.grid.refreshColumns();
 		await this.getData();
 		await this.getFiles();
-		this.checkFiles();		
+		this.checkFiles();
 		this.grid.parse(this.booksArr);
 		this._bookCard = this.ui(this.bookCard);
 	}
@@ -136,24 +137,12 @@ export default class Library extends JetView {
 	async getData() {		
 		const userId = this.getParam("id", true);
 		const dbData = await booksModel.getDataFromServer(userId);
-		this.booksArr = this.convertDates(dbData.json());
+		this.booksArr = convertDatesInArray(dbData.json());
 	}
 
 	async getFiles() {
 		const dbData = await filesModel.getDataFromServer();
 		this.filesArr = dbData.json();						
-	}
-
-	convertDates(booksArr) {
-		let date;
-
-		booksArr = booksArr.map((el) => {
-			date = el.yearOfPublication;
-			el.yearOfPublication = date ? new Date(date) : '';
-			return el;
-		});
-
-		return booksArr;		
 	}
 
 	checkFiles() {
@@ -169,10 +158,10 @@ export default class Library extends JetView {
 		});
 	}
 
-	showBookCard(id) {
-		const book = this.booksArr.find(el => el.id == id);
-		this._bookCard.showPopup(book);
-	}
+	// showBookCard(id) {
+	// 	const book = this.booksArr.find(el => el.id == id);
+	// 	this._bookCard.showPopup(book);
+	// }
 
 	removeBook(id) {
 		booksModel.removeItem(id).then(() => {

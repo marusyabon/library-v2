@@ -1,7 +1,7 @@
-import { JetView } from 'webix-jet';
+import {JetView} from 'webix-jet';
 import booksModel from '../../models/books';
-import { DUMMYCOVER } from '../../consts';
-import { toggleElement, addItem, updateItem } from '../../scripts'; 
+import {DUMMYCOVER} from '../../consts';
+import {toggleElement, addItem, updateItem, convertDatesInArray} from '../../scripts'; 
 import filesModel from '../../models/files';
 import Library from '../common/library';
 
@@ -159,16 +159,14 @@ export default class BookCard extends JetView {
 		this.form = this.$$('bookCardLibrarian');
 	}
 
-	showPopup(book) {
+	showPopup(id) {
 		this.clearForm();
-		this.isNew = book ? false : true;
-		this.book = book || '';
-		this.bookId = book ? book.id : '';
+		this.isNew = id ? false : true;
+		this.bookId = id || '';
 		this.userId = this.getParam('id', true);
 
 		filesModel.getItems(this.bookId).then((dbData) => {
 			const filesArr = dbData.json();
-
 			const textFiles = [];
 			const audioFiles = [];
 
@@ -182,6 +180,7 @@ export default class BookCard extends JetView {
 						break;
 				}
 			});
+
 			this.$$('availableTextFiles').parse(textFiles);
 			this.$$('availableAudioFiles').parse(audioFiles);
 		});
@@ -190,8 +189,11 @@ export default class BookCard extends JetView {
 		toggleElement(!this.isNew, this.$$('addingFilesButtons'));
 
 		if(!this.isNew) {
-			this.form.setValues(book);
-			this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);			
+			booksModel.getBook(id).then((bookData) => {
+				const book = bookData.json()[0];
+				this.form.setValues(book);
+				this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
+			});						
 		}		
 
 		this.getRoot().show();	
@@ -202,7 +204,7 @@ export default class BookCard extends JetView {
 
 		const successAction = (newData) => {
 			this.webix.message('Success');
-			const booksArr = Library.prototype.convertDates(newData.json());
+			const booksArr = convertDatesInArray(newData.json());
 			$$('dtLibrary').parse(booksArr);
 			this.hideWindow();
 		};
