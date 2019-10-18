@@ -56,9 +56,9 @@ router.put('/', (req, res) => {
 				coverPhoto: req.body.coverPhoto
 			}
 		},
-		(err, results) => {
+		(err, data) => {
 			if (!err) {
-				res.send(results);
+				res.send(data);
 			}
 			else {
 				res.status(500).send(err);
@@ -70,9 +70,9 @@ router.put('/', (req, res) => {
 router.delete('/', (req, res) => {
 	Book.findOneAndDelete(
 		{ _id: req.body.row },
-		(err, results) => {
+		(err, data) => {
 			if (!err) {
-				res.send(results);
+				res.send(data);
 			}
 			else {
 				res.status(500).send(err);

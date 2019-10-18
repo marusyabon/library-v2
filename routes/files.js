@@ -1,51 +1,42 @@
 import { Router } from 'express';
-import connection from '../db';
-import mysql from 'mysql2';
+import File from '../models/files';
 import path from 'path';
+
 const router = Router();
 
 router.get('/', (req, res) => {
-	connection.query('SELECT * FROM `files`',
-		function (err, results) {
-			if(!err) {
-				res.send(results);
-			}
-			else {
-				res.status(500).send(err);
-			}			
+	File.find({}, (err, data) => {
+		if (!err) {
+			res.send(data);
 		}
-	);	
+		else {
+			res.status(500).send(err);
+		}
+	});
 });
 
-router.get('/:book_id', (req, res) => {
-	const bookId = req.params.book_id;
-
-	connection.query('SELECT * FROM `files` WHERE `book_id` = ?', [bookId],
-		function (err, results) {
-			if(!err) {
-				res.send(results);
-			}
-			else {
-				res.status(500).send(err);
-			}
+router.get('/:bookId', (req, res) => {
+	File.find({bookId: req.params.bookId}, (err, data) => {
+		if (!err) {
+			res.send(data);
 		}
-	);	
+		else {
+			res.send({status: 'error'});
+		}
+	});
 });
 
 router.get('/download/:id', (req, res) => {
-	const id = req.params.id;
+	File.find({_id: req.params.id}, (err, data) => {
+		const file = data[0];
 
-	connection.query('SELECT * FROM `files` WHERE `id` = ?', [id],
-		function (err, results) {
-			const file = results[0];
-			if(!err) {
-				res.download(path.join(file.url, file.name));
-			}
-			else {
-				res.status(500).send(err);
-			}			
+		if(!err) {
+			res.download(path.join(file.url, file.name));
 		}
-	);	
+		else {
+			res.status(500).send(err);
+		}
+	});
 });
 
 router.post('/upload/:datatype', (req, res) => {
@@ -57,28 +48,29 @@ router.post('/upload/:datatype', (req, res) => {
 
 	const uploadedFile = req.files.upload;
 	const fileName = uploadedFile.name;
-	const _path = path.resolve(`/library/data/${datatype}`);
-	const url = `${_path}/${fileName}`;
+	const url = path.join(__dirname, `../data/${datatype}`, fileName);
 
 	uploadedFile.mv(url, function (err) {
 		if (!err) {
 			const fileSize = uploadedFile.size;
-			const fileUserId = req.body.user_id;
 			const fileBookId = req.body.book_id;
+			const fileObj = {
+				name: fileName,
+				size: fileSize,
+				url,
+				bookId: fileBookId,
+				dataType: datatype
+			};
+			const file = new File(fileObj);
 
-			const query = mysql.format('INSERT INTO files (`name`, `size`, `url`, `book_id`, `user_id`, `data_type`) VALUES (?,?,?,?,?,?)', [fileName, fileSize, _path, fileUserId, fileBookId, datatype]);
-			connection.query(
-				query,
-				(err) => {
-					if (!err) {
-						res.send({message: 'Success'});
-					}
-					else {
-						res.status(500).send(err);
-					}
-
+			file.save((err, data) => {
+				if (!err) {
+					res.send(data);
 				}
-			);
+				else {
+					res.status(500).send(err);
+				}
+			});
 		}
 		else {
 			res.status(500).send(err);

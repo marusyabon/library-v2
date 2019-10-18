@@ -29,6 +29,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect('mongodb://localhost:27017/libraryDB', { useNewUrlParser: true });
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
 app.use(fileUpload());
  
 app.use('/', indexRouter);
