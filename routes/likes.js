@@ -13,7 +13,7 @@ router.get('/:book_id', (req, res) => {
 				res.send(results);
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}
 		}
 	);	
@@ -31,8 +31,7 @@ router.post('/', function (req, res) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.status(304).send(err);
+				res.status(500).send(err);
 			}
 			
 		}
@@ -51,8 +50,7 @@ router.delete('/', function (req, res) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.status(304).send(err);
+				res.status(500).send(err);
 			}			
 		}
 	);

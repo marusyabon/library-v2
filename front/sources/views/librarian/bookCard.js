@@ -3,7 +3,6 @@ import booksModel from '../../models/books';
 import {DUMMYCOVER} from '../../consts';
 import {toggleElement, addItem, updateItem, convertDatesInArray} from '../../scripts'; 
 import filesModel from '../../models/files';
-import Library from '../common/library';
 
 export default class BookCard extends JetView {
 	config() {

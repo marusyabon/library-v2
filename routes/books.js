@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 			res.send(data);
 		}
 		else {
-			res.send({status: 'error'});
+			res.status(500).send(err);
 		}
 	});
 });
@@ -30,15 +30,12 @@ router.get('/:bookId', (req, res) => {
 router.post('/', (req, res) => {
 	const book = new Book(req.body);
 	book.save((err, results) => {
-		const response = {};
 		if (!err) {
-			// response.serverStatus = 200;
-			response.data = results;
+			res.send(results);
 		}
 		else {
-			response.serverStatus = 500;
+			res.status(500).send(err);
 		}
-		res.send(response);
 	});
 });
 
@@ -60,16 +57,12 @@ router.put('/', (req, res) => {
 			}
 		},
 		(err, results) => {
-			const response = {};
 			if (!err) {
-				response.serverStatus = 200;
-				response.data = results;
+				res.send(results);
 			}
 			else {
-				response.serverStatus = 500;
+				res.status(500).send(err);
 			}
-			console.log(response);
-			res.send(response);
 		}
 	);
 });
@@ -77,12 +70,12 @@ router.put('/', (req, res) => {
 router.delete('/', (req, res) => {
 	Book.findOneAndDelete(
 		{ _id: req.body.row },
-		function (err, result) {
+		(err, results) => {
 			if (!err) {
-				res.status(200).send(result);
+				res.send(results);
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}
 		}
 	);

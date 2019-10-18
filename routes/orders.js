@@ -3,7 +3,7 @@ const router = Router();
 import connection from '../db';
 import mysql from 'mysql2';
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', function (req, res) {
 	const id = req.params.id;
 	const query = mysql.format('SELECT orders.*, books.book_title, books.author_name FROM orders LEFT JOIN books ON orders.book_id = books.id WHERE orders.user_id = ?', [id]);
 
@@ -13,14 +13,13 @@ router.get('/:id', function (req, res, next) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.send(err);
+				res.status(500).send(err);
 			}
 		}
 	);
 });
 
-router.get('/:id/ids', function (req, res, next) {
+router.get('/:id/ids', function (req, res) {
 	const id = req.params.id;
 	const query = mysql.format('SELECT book_id AS id FROM orders WHERE user_id = ? AND return_date IS NULL', [id]);
 
@@ -30,8 +29,7 @@ router.get('/:id/ids', function (req, res, next) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.send(err);
+				res.status(500).send(err);
 			}
 		}
 	);
@@ -52,8 +50,7 @@ router.post('/', (req, res) => {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.status(500);
+				res.status(500).send(err);
 			}
 		}
 	);
@@ -104,15 +101,14 @@ router.put('/', (req, res) => {
 			res.send(results);		
 		}
 		else {
-			console.log(err);
-			res.status(500);
+			res.status(500).send(err);
 		}
 	});
 });
 
 router.delete('/', function (req, res) {
 	const id = req.body.row;
-	const query = mysql.format("DELETE FROM `orders` WHERE `id` = ?", [id]);
+	const query = mysql.format('DELETE FROM `orders` WHERE `id` = ?', [id]);
 
 	connection.query(
 		query,
@@ -121,10 +117,8 @@ router.delete('/', function (req, res) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
 				res.status(500).send(err);
 			}
-			
 		}
 	);
 });

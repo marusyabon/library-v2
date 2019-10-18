@@ -2,10 +2,10 @@ import { Router } from 'express';
 const router = Router();
 import connection from '../db';
 import mysql from 'mysql2';
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
+router.get('/', function (req, res) {
 	connection.query('SELECT users.*, capabilities.role_name FROM `users` LEFT JOIN `capabilities` ON `capabilities_id` = `capabilitie_id`',
 		function (err, results) {
 			if (!err) {
@@ -15,7 +15,7 @@ router.get('/', function (req, res, next) {
 	);
 });
 
-router.get('/readers', function (req, res, next) {
+router.get('/readers', function (req, res) {
 	const query = mysql.format('SELECT id, user_name, user_surname FROM `users` WHERE `capabilities_id` = 1');
 
 	connection.query(query,
@@ -27,7 +27,7 @@ router.get('/readers', function (req, res, next) {
 	);
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', function (req, res) {
 	const id = req.params.id;
 	const query = mysql.format('SELECT * FROM `users` WHERE `id` = ?', [id]);
 
@@ -35,6 +35,9 @@ router.get('/:id', function (req, res, next) {
 		function (err, results) {
 			if (!err) {
 				res.send(results);
+			}
+			else {
+				res.status(500).send(err);
 			}
 		}
 	);
@@ -62,15 +65,14 @@ router.post('/', (req, res) => {
 					res.send(results);
 				}
 				else {
-					console.log(err);
-					res.status(500);
+					res.status(500).send(err);
 				}
 			}
 		);
 	});	
 });
 
-router.put('/', function (req, res, next) {
+router.put('/', function (req, res) {
 	const user = req.body;
 	const query = mysql.format('UPDATE `users` SET `user_name` = ?, `user_surname` = ?, `passport_ID` = ?, `birth_date` = ?, `address` = ?, `phone_numbers` = ?, `email` = ?, `capabilities_id` = ? WHERE `id` = ?', [
 		user.user_name,
@@ -90,8 +92,7 @@ router.put('/', function (req, res, next) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.status(304);
+				res.status(500).send(err);
 			}
 		}
 	);

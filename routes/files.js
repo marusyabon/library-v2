@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 				res.send(results);
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}			
 		}
 	);	
@@ -26,7 +26,7 @@ router.get('/:book_id', (req, res) => {
 				res.send(results);
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}
 		}
 	);	
@@ -42,7 +42,7 @@ router.get('/download/:id', (req, res) => {
 				res.download(path.join(file.url, file.name));
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}			
 		}
 	);	
@@ -74,16 +74,14 @@ router.post('/upload/:datatype', (req, res) => {
 						res.send({message: 'Success'});
 					}
 					else {
-						console.log(err);
-						res.status(500);
+						res.status(500).send(err);
 					}
 
 				}
 			);
 		}
 		else {
-			console.log(err);
-			res.status(500);
+			res.status(500).send(err);
 		}
 	});
 });

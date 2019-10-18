@@ -18,7 +18,7 @@ router.get('/:id', (req, res) => {
 				inputStream.pipe(res);
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}
 		}
 	);

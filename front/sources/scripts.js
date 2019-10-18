@@ -12,8 +12,6 @@ function addItem (Model, data, successAction) {
 		Model.getDataFromServer().then((data) => {
 			successAction(data);
 		});			
-	}).fail((xhr) => {
-
 	});
 }
 
