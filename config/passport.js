@@ -30,24 +30,26 @@ passport.use('local', new LocalStrategy({
 	passwordField: 'password',
 }, (username, password, done) => {
 	try {		
-		const query = mysql.format('SELECT * FROM `users` INNER JOIN `role` ON (users.`role_id` = role.`role_id`) WHERE `email` = ?', [username]);
+		const query = mysql.format('SELECT * FROM `users` INNER JOIN `roles` ON (users.`role_id` = roles.`id`) WHERE `email` = ?', [username]);
 		
 		connection.query(
 			query,
 			function (err, results) {
-				const userPassword = results[0] ? results[0].account_password : '';
+				if(!err) {
+					const userPassword = results[0] ? results[0].account_password : '';
 
-				bcrypt.compare(password, userPassword, (err, isMatch) => {
-					if (isMatch) {
-						return done(null, results[0]);
-					} else {
-						return done(err, 'Incorrect Username / Password');
-					}
-				});	
+					bcrypt.compare(password, userPassword, (err, isMatch) => {
+						if (isMatch) {
+							return done(null, results[0]);
+						} else {
+							return done(err, 'Incorrect Username / Password');
+						}
+					});
+				}
 			}
 		);		
 	} catch (error) {
-		done(error);
+		return done(error, 'Error');
 	}
 }));
 

@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
 
@@ -29,7 +29,7 @@ router.post('/', (req, res, next) => {
 					}
 
 					/** generate a signed json web token and return it in the response */
-					const token  = jwt.sign(JSON.stringify(payload), "your_jwt_secret");
+					const token  = jwt.sign(JSON.stringify(payload), 'your_jwt_secret');
 					/** assign our jwt to the cookie */
 					res.cookie('jwt', token, { maxAge: 900000 });
 					res.json({ success: true, user: user });
