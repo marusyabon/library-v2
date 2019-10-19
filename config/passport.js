@@ -15,7 +15,7 @@ const cookieExtractor = (req) => {
 		const cookieArr = cookie.split(' ');
 		cookieArr.forEach((el) => {
 			if (el.indexOf('jwt') == 0) {
-				token = el.split("=")[1];
+				token = el.split('=')[1];
 			}
 		});
 	}
@@ -23,21 +23,21 @@ const cookieExtractor = (req) => {
 };
 const opts = {};
 opts.jwtFromRequest = cookieExtractor;
-opts.secretOrKey = "your_jwt_secret";
+opts.secretOrKey = 'your_jwt_secret';
 
 passport.use('local', new LocalStrategy({
 	usernameField: 'username',
 	passwordField: 'password',
 }, (username, password, done) => {
 	try {		
-		const query = mysql.format('SELECT * FROM `users` INNER JOIN `capabilities` ON (users.`capabilities_id` = capabilities.`capabilitie_id`) WHERE `email` = ?', [username]);
+		const query = mysql.format('SELECT * FROM `users` INNER JOIN `role` ON (users.`role_id` = role.`role_id`) WHERE `email` = ?', [username]);
 		
 		connection.query(
 			query,
 			function (err, results) {
-				const user_password = results[0] ? results[0].account_password : '';
+				const userPassword = results[0] ? results[0].account_password : '';
 
-				bcrypt.compare(password, user_password, (err, isMatch) => {
+				bcrypt.compare(password, userPassword, (err, isMatch) => {
 					if (isMatch) {
 						return done(null, results[0]);
 					} else {

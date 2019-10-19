@@ -19,7 +19,7 @@ export default class UserForm extends JetView {
 							{ view: 'text', name: 'id', localId: 'id', hidden: true },
 							{ view: 'text', label: 'First name', name: 'user_name', labelWidth: 90, labelAlign: 'right' },
 							{ view: 'text', label: 'Last name', name: 'user_surname', labelWidth: 90, labelAlign: 'right' },
-							{ view: 'combo', label: 'Role', name: 'capabilities_id', labelWidth: 90, labelAlign: 'right', options: [
+							{ view: 'combo', label: 'Role', name: 'role_id', labelWidth: 90, labelAlign: 'right', options: [
 								{id: 1, value: 'reader'},
 								{id: 2, value: 'labrarian'},
 								{id: 3, value: 'admin'}
@@ -32,7 +32,7 @@ export default class UserForm extends JetView {
 							{ view: 'text', label: 'Password', name: 'account_password', localId: 'initial_password', labelWidth: 90, labelAlign: 'right' },
 						],
 						rules: {
-							'capabilities_id': webix.rules.isNotEmpty,
+							'role_id': webix.rules.isNotEmpty,
 							'email': webix.rules.isNotEmpty,
 							'account_password': webix.rules.isNotEmpty,
 						}
@@ -83,8 +83,8 @@ export default class UserForm extends JetView {
 			this.form.setValues(user);
 		}
 
-		const initial_password = this.$$('initial_password');
-		toggleElement(this.isNew, initial_password);
+		const initialPassword = this.$$('initial_password');
+		toggleElement(this.isNew, initialPassword);
 		
 
 		this.getRoot().show();
