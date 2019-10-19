@@ -110,7 +110,7 @@ export default class TopView extends JetView{
 			let usersArr = dbData.json();
 			usersArr = usersArr.map((el) => {
 				el.full_name = el.user_name + ' ' + el.user_surname;
-				const format = webix.Date.dateToStr("%Y-%m-%d");
+				const format = webix.Date.dateToStr('%Y-%m-%d');
 				el.birth_date = format(new Date(el.birth_date));
 				return el;
 			});
@@ -123,7 +123,7 @@ export default class TopView extends JetView{
 
 		this.$$('logoutBtn').attachEvent('onItemClick', () => {
 			const app = this.app;
-			const format = webix.Date.dateToStr("%Y-%m-%d");
+			const format = webix.Date.dateToStr('%Y-%m-%d');
 			const currentDate = format(new Date());
 			
 			authorization.logout({currentDate}).then((response) => {

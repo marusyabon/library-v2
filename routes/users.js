@@ -6,10 +6,13 @@ import bcrypt from 'bcrypt';
 
 /* GET users listing. */
 router.get('/', function (req, res) {
-	connection.query('SELECT users.*, roles.role_name FROM `users` LEFT JOIN `roles` ON `role_id` = `id`',
+	connection.query('SELECT users.*, roles.role_name FROM `users` LEFT JOIN `roles` ON users.`role_id` = roles.`id`',
 		function (err, results) {
 			if (!err) {
 				res.send(results);
+			}
+			else {
+				res.status(500).send(err);
 			}
 		}
 	);
@@ -22,6 +25,9 @@ router.get('/readers', function (req, res) {
 		function (err, results) {
 			if (!err) {
 				res.send(results);
+			}
+			else {
+				res.status(500).send(err);
 			}
 		}
 	);
