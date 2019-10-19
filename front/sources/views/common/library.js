@@ -137,7 +137,7 @@ export default class Library extends JetView {
 	async getData() {		
 		const userId = this.getParam("id", true);
 		const dbData = await booksModel.getDataFromServer(userId);
-		this.booksArr = convertDatesInArray(dbData.json());
+		this.booksArr = convertDatesInArray(dbData);
 	}
 
 	async getFiles() {
@@ -157,11 +157,6 @@ export default class Library extends JetView {
 			}
 		});
 	}
-
-	// showBookCard(id) {
-	// 	const book = this.booksArr.find(el => el.id == id);
-	// 	this._bookCard.showPopup(book);
-	// }
 
 	removeBook(id) {
 		booksModel.removeItem(id).then(() => {

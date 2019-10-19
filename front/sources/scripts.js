@@ -23,16 +23,27 @@ function updateItem (Model, data, successAction) {
 	});
 }
 
-function convertDatesInArray(arr) {
-	let date;
+function convertDatesInArray(jsonObj) {
+	let dataArr = jsonObj.json();
 
-	arr = arr.map((el) => {
-		date = el.yearOfPublication;
+	dataArr = dataArr.map((el) => {
+		let date = el.yearOfPublication;
 		el.yearOfPublication = date ? new Date(date) : '';
 		return el;
 	});
 
-	return arr;		
+	return dataArr;		
+}
+
+function combineUserNamesInArr(jsonObj) {
+	let usersArr = jsonObj.json();
+
+	usersArr = usersArr.map((el) => {
+		el['full_name'] = el.user_name + ' ' + el.user_surname;
+		return el;
+	});
+
+	return usersArr;
 }
 
 webix.protoUI({
@@ -46,4 +57,4 @@ webix.protoUI({
 	}
 }, webix.ui.list);
 
-export {toggleElement, addItem, updateItem, convertDatesInArray};
+export {toggleElement, addItem, updateItem, convertDatesInArray, combineUserNamesInArr};

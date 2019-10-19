@@ -1,6 +1,6 @@
 import { JetView } from 'webix-jet';
 import usersModel from '../../models/users';
-import {toggleElement, addItem, updateItem} from '../../scripts'; 
+import {toggleElement, addItem, updateItem, combineUserNamesInArr} from '../../scripts'; 
 
 export default class UserForm extends JetView {
 	config() {
@@ -67,20 +67,26 @@ export default class UserForm extends JetView {
 		this.window = this.$$('userWindow');
 	}
 
-	successAction() {
+	successAction(newData) {
 		this.webix.message('Success');
+		const usersArr = combineUserNamesInArr(newData);
+		$$('usersList').parse(usersArr);
 		this.hideWindow();
 	}
 
-	showWindow(user) {	
-		this.isNew = user ? false : true;	
+	showWindow(id) {
+		this.isNew = id ? false : true;	
 
 		if(this.isNew) {
 			this.window.getHead().setHTML('Add user');
 			this.window.getHead().refresh();
 		}
 		else {
-			this.form.setValues(user);
+			usersModel.getItem(id).then((dbData) => {
+				let user = dbData.json();
+				user = this.convertUserBithDate(user);
+				this.form.setValues(user);
+			});
 		}
 
 		const initialPassword = this.$$('initial_password');
@@ -88,6 +94,13 @@ export default class UserForm extends JetView {
 		
 
 		this.getRoot().show();
+	}
+
+	convertUserBithDate(data) {
+		const format = webix.Date.dateToStr('%Y-%m-%d');
+		data['birth_date'] = format(new Date(data.birth_date));
+
+		return data;
 	}
 
 	saveForm() {

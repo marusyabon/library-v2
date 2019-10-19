@@ -203,7 +203,7 @@ export default class BookCard extends JetView {
 
 		const successAction = (newData) => {
 			this.webix.message('Success');
-			const booksArr = convertDatesInArray(newData.json());
+			const booksArr = convertDatesInArray(newData);
 			$$('dtLibrary').parse(booksArr);
 			this.hideWindow();
 		};

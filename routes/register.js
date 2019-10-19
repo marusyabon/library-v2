@@ -1,5 +1,5 @@
-import express from "express";
-import bcrypt from "bcrypt";
+import express from 'express';
+import bcrypt from 'bcrypt';
 import connection from '../db';
 import mysql from 'mysql2';
 import jwt from 'jsonwebtoken';

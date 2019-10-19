@@ -49,7 +49,7 @@ passport.use('local', new LocalStrategy({
 			}
 		);		
 	} catch (error) {
-		return done(error, 'Error');
+		done(error);
 	}
 }));
 

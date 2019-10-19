@@ -1,12 +1,13 @@
 import { Router } from 'express';
-const router = Router();
 import connection from '../db';
 import mysql from 'mysql2';
 import bcrypt from 'bcrypt';
 
+const router = Router();
+
 /* GET users listing. */
 router.get('/', function (req, res) {
-	connection.query('SELECT users.*, roles.role_name FROM `users` LEFT JOIN `roles` ON users.`role_id` = roles.`id`',
+	connection.query('SELECT users.id, users.user_name, users.user_surname, users.phone_numbers, users.email, roles.role_name FROM `users` LEFT JOIN `roles` ON users.`role_id` = roles.`id`',
 		function (err, results) {
 			if (!err) {
 				res.send(results);
@@ -35,12 +36,13 @@ router.get('/readers', function (req, res) {
 
 router.get('/:id', function (req, res) {
 	const id = req.params.id;
-	const query = mysql.format('SELECT * FROM `users` WHERE `id` = ?', [id]);
+	const query = mysql.format('SELECT id, user_name, user_surname, passport_ID, birth_date, address, phone_numbers, card_reader_number, email, role_id \
+	FROM `users` WHERE `id` = ?', [id]);
 
 	connection.query(query,
 		function (err, results) {
 			if (!err) {
-				res.send(results);
+				res.send(results[0]);
 			}
 			else {
 				res.status(500).send(err);
