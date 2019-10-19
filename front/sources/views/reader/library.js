@@ -1,4 +1,4 @@
-import {JetView} from "webix-jet";
+import {JetView} from 'webix-jet';
 import Library from '../common/library';
 import BookCard from './bookCard';
 

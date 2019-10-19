@@ -1,7 +1,8 @@
 import { JetView } from 'webix-jet';
 import likesModel from '../../models/likes';
 import {toggleElement} from '../../scripts'; 
-import {DUMMYCOVER, SUCCESS_SQL, SUCCESS_MONGO} from '../../consts'; 
+import {DUMMYCOVER} from '../../consts'; 
+import booksModel from '../../models/books';
 import filesModel from '../../models/files';
 import ordersModel from '../../models/orders';
 import CommentClass from './commentObj';
@@ -173,32 +174,39 @@ export default class BookCard extends JetView {
 		};
 	}
 	
-	showPopup(book) {
+	showPopup(id) {
 		this.likeButton = this.$$('likeButton');
 		this.form = this.$$('bookCardReader');
 		this.filesList = this.$$('availableTextFiles');
 		this.toggleCommentsBtn = this.$$('commentButton');
 		this.orderBtn = this.$$('orderBook');
 		this.commentLayout = this.$$('commentLayout');
-		this.book = book;
-		this.bookId = book.id;
 		this.userId = this.getParam('id', true);
-		this.Comment = new CommentClass(this.userId, this.bookId, this.commentLayout);
-		
-		this.clearForm();
-		this.form.setValues(book);
-		this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
-		this.likeButton.define('badge', book.count_likes || '0');
-		this.getFiles();
-		this.Comment.getComments();	
-		this.commentsGot = true;	
-		
-		toggleElement(book.book_file, this.$$('downloadBook'));
-		toggleElement(book.available_copies, this.$$('orderBook'));
-		this.toggleLike(book.userId == this.userId);
-		this.toggleOrder(book.order_date);
 
-		this.getRoot().show();
+		booksModel.getBook(id).then((bookData) => {
+			const book = bookData.json()[0];
+
+			this.book = book;
+			this.bookId = book.id;
+			this.Comment = new CommentClass(this.userId, this.bookId, this.commentLayout);
+
+			this.clearForm();
+
+			this.form.setValues(book);			
+			this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
+			this.form.setValues(book);
+			this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
+			this.likeButton.define('badge', book.count_likes || '0');
+			this.getFiles();
+			this.Comment.getComments();	
+			this.commentsGot = true;			
+			toggleElement(book.book_file, this.$$('downloadBook'));
+			toggleElement(book.available_copies, this.$$('orderBook'));
+			this.toggleLike(book.userId == this.userId);
+			this.toggleOrder(book.order_date);
+	
+			this.getRoot().show();
+		});
 	}
 
 	getFiles() {
@@ -230,11 +238,8 @@ export default class BookCard extends JetView {
 			orderDate: new Date()
 		};
 
-		ordersModel.addOrder(order).then((response) => {
-			const status = response.json().serverStatus;
-			if(status == SUCCESS_SQL || SUCCESS_MONGO) {
-				this.setOrderedVal();
-			}
+		ordersModel.addOrder(order).then(() => {
+			this.setOrderedVal();
 		});
 	}
 
@@ -261,19 +266,13 @@ export default class BookCard extends JetView {
 
 	likeBook() {
 		if(this.book.userId == this.userId) {
-			likesModel.removeLike(this.userId, this.bookId).then((response) => {
-				const status = response.json().serverStatus;
-				if(status == SUCCESS) {
-					this.unsetLike();
-				}
+			likesModel.removeLike(this.userId, this.bookId).then(() => {
+				this.unsetLike();
 			});
 		}
 		else {
-			likesModel.addLike(this.userId, this.bookId).then((response) => {
-				const status = response.json().serverStatus;
-				if(status == SUCCESS) {
-					this.setLike();
-				}
+			likesModel.addLike(this.userId, this.bookId).then(() => {
+				this.setLike();
 			});
 		}	
 	}	
