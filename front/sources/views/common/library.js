@@ -147,7 +147,7 @@ export default class Library extends JetView {
 
 	checkFiles() {
 		this.booksArr.forEach((book, i) => {
-			const isFiles = this.filesArr.find((el) => el.book_id === book.id);
+			const isFiles = this.filesArr.find((el) => el.bookId === book.id);
 			
 			if(isFiles) {
 				this.booksArr[i].ebook = 'yes';

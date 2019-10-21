@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import Book from '../models/books';
+import mongoose from 'mongoose';
 import connection from '../db';
 import mysql from 'mysql2';
 
@@ -17,12 +18,25 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:bookId', (req, res) => {
-	Book.find({_id: req.params.bookId}, (err, data) => {
+	Book.aggregate([
+		{ $match : { _id : mongoose.Types.ObjectId(req.params.bookId) } },
+		{ $lookup: {
+			from: 'files',
+			localField: '_id',
+			foreignField: 'bookId',
+			as: 'files'
+		}		
+		},
+		{ $limit: 1 }
+	]).exec((err, data) => {
 		if (!err) {
-			res.send(data);
+			data[0].files.forEach((el) => {
+				el.id = el._id;
+			});
+			res.send(data[0]);
 		}
 		else {
-			res.send({status: 'error'});
+			res.status(500).send(err);
 		}
 	});
 });
@@ -40,8 +54,10 @@ router.post('/', (req, res) => {
 });
 
 router.put('/', (req, res) => {
+	console.log(req.body.coverPhoto);
+	
 	Book.findOneAndUpdate(
-		{_id: req.body.id},
+		{_id: req.body._id},
 		{
 			$set: {
 				ebook: req.body.ebook,
@@ -80,6 +96,5 @@ router.delete('/', (req, res) => {
 		}
 	);
 });
-
 
 export default router;

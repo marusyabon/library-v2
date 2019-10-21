@@ -53,7 +53,7 @@ router.post('/upload/:datatype', (req, res) => {
 	uploadedFile.mv(url, function (err) {
 		if (!err) {
 			const fileSize = uploadedFile.size;
-			const fileBookId = req.body.book_id;
+			const fileBookId = req.body.bookId;
 			const fileObj = {
 				name: fileName,
 				size: fileSize,
@@ -76,6 +76,20 @@ router.post('/upload/:datatype', (req, res) => {
 			res.status(500).send(err);
 		}
 	});
+});
+
+router.delete('/:id', (req, res) => {
+	File.findOneAndDelete(
+		{ _id: req.params.id },
+		(err, data) => {
+			if (!err) {
+				res.send(data);
+			}
+			else {
+				res.status(500).send(err);
+			}
+		}
+	);
 });
 
 export default router;

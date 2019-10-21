@@ -89,10 +89,12 @@ export default class BookCard extends JetView {
 		const availableTextFiles = {
 			view: 'activeList',
 			localId: 'availableTextFiles',
+			autoheight: true,
 			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
-			on: {
-				onItemClick: (id) => {
-					//remove file and record in DB
+			onClick: {
+				'fa-times': (ev, id) => {
+					this.removeFile(this.$$('availableTextFiles'), id);
+					return false;
 				}
 			}
 		};
@@ -100,7 +102,14 @@ export default class BookCard extends JetView {
 		const availableAudioFiles = {
 			view: 'activeList',
 			localId: 'availableAudioFiles',
+			autoheight: true,
 			template: '#name# <span class="list_button"><i class = "fas fa-times"></i></span>',
+			onClick: {
+				'fa-times': (ev, id) => {
+					this.removeFile(this.$$('availableAudioFiles'), id);
+					return false;
+				}
+			}
 		};
 
 		const saveBtn = {
@@ -164,34 +173,32 @@ export default class BookCard extends JetView {
 		this.bookId = id || '';
 		this.userId = this.getParam('id', true);
 
-		filesModel.getItems(this.bookId).then((dbData) => {
-			const filesArr = dbData.json();
-			const textFiles = [];
-			const audioFiles = [];
-
-			filesArr.forEach((file) => {
-				switch(file.data_type) {
-					case 'text':
-						textFiles.push(file);
-						break;
-					case 'audio':
-						audioFiles.push(file);
-						break;
-				}
-			});
-
-			this.$$('availableTextFiles').parse(textFiles);
-			this.$$('availableAudioFiles').parse(audioFiles);
-		});
-
 		toggleElement(!this.isNew, this.$$('bookCover'));
 		toggleElement(!this.isNew, this.$$('addingFilesButtons'));
 
 		if(!this.isNew) {
 			booksModel.getBook(id).then((bookData) => {
-				const book = bookData.json()[0];
+				const book = bookData.json();
+
+				const filesArr = book.files;
+				const textFiles = [];
+				const audioFiles = [];
+
+				filesArr.forEach((file) => {
+					switch(file.dataType) {
+						case 'text':
+							textFiles.push(file);
+							break;
+						case 'audio':
+							audioFiles.push(file);
+							break;
+					}
+				});
+
 				this.form.setValues(book);
-				this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
+				this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
+				this.$$('availableTextFiles').parse(textFiles);
+				this.$$('availableAudioFiles').parse(audioFiles);
 			});						
 		}		
 
@@ -212,7 +219,6 @@ export default class BookCard extends JetView {
 			if(this.isNew) {
 				addItem(booksModel, data, successAction);				
 			}
-
 			else {
 				updateItem(booksModel, data, successAction);
 			}
@@ -229,6 +235,12 @@ export default class BookCard extends JetView {
 				}
 			});
 		}		
+	}
+
+	removeFile(targetList, id) {
+		filesModel.removeItem(id).then(() => {
+			targetList.remove(id);
+		});
 	}
 
 	hideWindow() {
