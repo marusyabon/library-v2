@@ -24,7 +24,7 @@ class BooksModel {
 	}
 
 	removeItem(id) {
-		return webix.ajax().del(this._url, id);
+		return webix.ajax().del(`${this._url}${id}`);
 	}
 }
 

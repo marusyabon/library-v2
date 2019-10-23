@@ -13,12 +13,12 @@ export default class MainView extends JetView{
 					hidden: true,
 				},				
 				{
-					id: 'book_title',
+					id: 'bookTitle',
 					header: 'Book',
 					fillspace: 1
 				},
 				{
-					id: 'author_name',
+					id: 'authorName',
 					header: 'Author',
 					fillspace: 1
 				},
@@ -59,7 +59,13 @@ export default class MainView extends JetView{
 
 	async parseBooks() {
 		await ordersModel.getItems(this.userId).then((dbData) => {
-			let ordersArr = dbData.json();
+			const ordersArr = dbData.json();
+
+			ordersArr.forEach((el) => {
+				el.bookTitle = el.book.bookTitle;
+				el.authorName = el.book.authorName;
+			});
+			
 			this.grid.clearAll();
 			this.$$('ordersList').parse(ordersArr);
 		});

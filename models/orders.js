@@ -1,24 +1,22 @@
 import mongoose from 'mongoose';
 const {Schema} = mongoose;
 
-const FilesSchema = new Schema({
-	name: String,
-	size: String,
-	url: String,
+const OrdersSchema = new Schema({
+	userId: String,
 	bookId: {type: Schema.Types.ObjectId, ref: 'Book'},
-	dataType: String
+	orderDate: Date,
+	returnDate: Date
 });
 
-FilesSchema.set('toJSON', {
+OrdersSchema.set('toJSON', {
 	virtuals: true,
 	transform: function (doc, ret) {
 		ret.id = ret._id;
 		delete ret._id;
 		delete ret.__v;
-		return ret;
 	}
 });
 
-const File = mongoose.model('File', FilesSchema);
+const Order = mongoose.model('Order', OrdersSchema);
 
-export default File;
+export default Order;

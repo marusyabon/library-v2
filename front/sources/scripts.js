@@ -1,11 +1,11 @@
-const toggleElement = (condition, element) => {
+function toggleElement (condition, element) {
 	if (condition) {
 		element.show();
 	}
 	else {
 		element.hide();
 	}
-};
+}
 
 function addItem (Model, data, successAction) {
 	Model.addItem(data).then(() => {

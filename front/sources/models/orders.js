@@ -5,24 +5,20 @@ class OrdersModel {
 		this._url = `${URL}/orders/`;
 	}
 	
-	getItems(id) {
-		return webix.ajax().get(`${this._url}${id}`);	
+	getItems(userId) {
+		return webix.ajax().get(`${this._url}${userId}`);	
 	}
 
-	getIdList(id) {
-		return webix.ajax().get(`${this._url}${id}/ids`);	
-	}
-
-	addOrder(order) {
+	addItem(order) {
 		return webix.ajax().post(this._url, order);
 	}
 
-	updateUserOrders(ordersArr, userId) {
-		webix.ajax().put(this._url, {orders: ordersArr, userId: userId});
+	removeUserOrders(ordersToRemove, userId) {
+		webix.ajax().put(this._url, {remove: ordersToRemove, userId: userId});
 	}
 
 	removeItem(id) {
-		return webix.ajax().del(this._url, id);
+		return webix.ajax().del(`${this._url}${id}`);
 	}
 }
 

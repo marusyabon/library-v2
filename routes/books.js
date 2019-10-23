@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 
 router.get('/:bookId', (req, res) => {
 	Book.aggregate([
-		{ $match : { _id : mongoose.Types.ObjectId(req.params.bookId) } },
+		{ $match: { _id: mongoose.Types.ObjectId(req.params.bookId) } },
 		{ $lookup: {
 			from: 'files',
 			localField: '_id',
@@ -27,6 +27,7 @@ router.get('/:bookId', (req, res) => {
 			as: 'files'
 		}		
 		},
+		{ $addFields: { 'id': '$_id'}},
 		{ $limit: 1 }
 	]).exec((err, data) => {
 		if (!err) {
@@ -53,9 +54,7 @@ router.post('/', (req, res) => {
 	});
 });
 
-router.put('/', (req, res) => {
-	console.log(req.body.coverPhoto);
-	
+router.put('/', (req, res) => {	
 	Book.findOneAndUpdate(
 		{_id: req.body._id},
 		{
@@ -83,9 +82,9 @@ router.put('/', (req, res) => {
 	);
 });
 
-router.delete('/', (req, res) => {
+router.delete('/:id', (req, res) => {
 	Book.findOneAndDelete(
-		{ _id: req.body.row },
+		{ _id: req.params.id },
 		(err, data) => {
 			if (!err) {
 				res.send(data);

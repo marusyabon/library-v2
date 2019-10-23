@@ -122,7 +122,7 @@ export default class BookCard extends JetView {
 		this.userId = this.getParam('id', true);
 
 		booksModel.getBook(id).then((bookData) => {
-			const book = bookData.json()[0];
+			const book = bookData.json();
 
 			this.book = book;
 			this.bookId = book.id;
@@ -130,29 +130,17 @@ export default class BookCard extends JetView {
 			this.clearForm();
 
 			this.form.setValues(book);			
-			this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
+			this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
 			this.form.setValues(book);
-			this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
+			this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
 			this.likeButton.define('badge', book.count_likes || '0');
-			this.getFiles();
-			toggleElement(book.book_file, this.$$('downloadBook'));
-			toggleElement(book.available_copies, this.$$('orderBook'));
-			this.toggleLike(book.userId == this.userId);
-			this.toggleOrder(book.order_date);
-	
-			this.getRoot().show();
-		});
-	}
 
-	getFiles() {
-		filesModel.getItems(this.bookId).then((dbData) => {
-			const filesArr = dbData.json();
-
+			const filesArr = book.files;
 			const textFiles = [];
 			const audioFiles = [];
 
 			filesArr.forEach((file) => {
-				switch(file.data_type) {
+				switch(file.dataType) {
 					case 'text': 
 						textFiles.push(file);
 						break;
@@ -163,6 +151,14 @@ export default class BookCard extends JetView {
 			});
 			this.$$('availableTextFiles').parse(textFiles);
 			this.$$('availableAudioFiles').parse(audioFiles);
+
+			toggleElement(textFiles.length, this.$$('downloadBook'));
+			toggleElement(book.availableCopies, this.$$('orderBook'));
+			
+			this.toggleLike(book.userId == this.userId);
+			this.toggleOrder(book.orderDate);
+	
+			this.getRoot().show();
 		});
 	}
 
@@ -173,7 +169,7 @@ export default class BookCard extends JetView {
 			orderDate: new Date()
 		};
 
-		ordersModel.addOrder(order).then(() => {
+		ordersModel.addItem(order).then(() => {
 			this.setOrderedVal();
 		});
 	}
