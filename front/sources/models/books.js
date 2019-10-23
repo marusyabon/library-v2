@@ -26,6 +26,10 @@ class BooksModel {
 	removeItem(id) {
 		return webix.ajax().del(`${this._url}${id}`);
 	}
+
+	search(req) {
+		return webix.ajax().get(`${this._url}search/${req}`);
+	}
 }
 
 export default new BooksModel();

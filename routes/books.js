@@ -106,4 +106,17 @@ router.delete('/:id', (req, res) => {
 	);
 });
 
+router.get('/search/:req', (req, res) => {
+	Book.find( 
+		{ $text: { $search: req.params.req, $caseSensitive: false} }, 
+		(err, data) => {
+			if (!err) {
+				res.send(data);
+			}
+			else {
+				res.status(500).send(err);
+			}
+		});
+});
+
 export default router;

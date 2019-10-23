@@ -109,8 +109,18 @@ export default class Library extends JetView {
 			}
 		};
 
+		const search = {
+			view: 'search',
+			id: 'librarySeach',
+			placeholder: 'Search',
+			on: {
+				onEnter: () => this.search(),
+				onSearchIconClick: () => this.search()
+			}
+		};
+
 		return {
-			rows: [header, dtable]
+			rows: [header, search, dtable]
 		};
 	}
 
@@ -166,5 +176,15 @@ export default class Library extends JetView {
 
 	addBook() {
 		this._bookCard.showPopup();
+	}
+
+	search() {
+		const searchInput = $$('librarySeach');
+		const value = searchInput.getValue();
+		booksModel.search(value).then((res) => {
+			this.grid.clearAll();
+			this.grid.parse(res.json());
+		});
+		searchInput.setValue('');
 	}
 }

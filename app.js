@@ -27,7 +27,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());	
 app.use(express.static(path.join(__dirname, 'public')));
 
-mongoose.connect('mongodb://localhost:27017/libraryDB', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost:27017/libraryDB', { useNewUrlParser: true }, function (err, db) {
+	if(!err) {
+		console.log('Mongo connected');
+		db.collections.books.createIndex( { bookTitle: 'text', authorName: 'text', genres: 'text', countryOfPublication: 'text', publishingHouse: 'text' } );
+	}
+});
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
@@ -53,7 +58,7 @@ app.use(function (err, req, res, next) {
 		console.log(err);
 	} else {
 		console.log(err);
-		// res.status(err.statusCode).send(err.message);
+		res.status(err.statusCode).send(err.message);
 	}
 });
 
