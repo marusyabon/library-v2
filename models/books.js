@@ -11,7 +11,9 @@ const BooksSchema = new Schema({
 	genres: String,
 	availableCopies: Number,
 	yearOfPublication: Date,
-	isFiles: Boolean
+	isFiles: Boolean,
+	viewedTimes: {type: Number, default: 0},
+	orderedTimes: {type: Number, default: 0}
 });
 
 BooksSchema.set('toJSON', {

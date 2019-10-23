@@ -1,8 +1,6 @@
 import {Router} from 'express';
 import Book from '../models/books';
 import mongoose from 'mongoose';
-import connection from '../db';
-import mysql from 'mysql2';
 
 const router = Router();
 
@@ -30,11 +28,23 @@ router.get('/:bookId', (req, res) => {
 		{ $addFields: { 'id': '$_id'}},
 		{ $limit: 1 }
 	]).exec((err, data) => {
-		if (!err) {
+		if (!err) {			
 			data[0].files.forEach((el) => {
 				el.id = el._id;
 			});
 			res.send(data[0]);
+			Book.update(
+				{_id: mongoose.Types.ObjectId(req.params.bookId)},
+				{$inc: { viewedTimes: 1 }},
+				(err, data) => {
+					if (!err) {
+						console.log(data);
+					}
+					else {
+						console.log(err);
+					}
+				}
+			);
 		}
 		else {
 			res.status(500).send(err);

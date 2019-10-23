@@ -1,6 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 import Order from '../models/orders';
+import Book from '../models/books';
 import mongoose from 'mongoose';
 
 router.get('/:userId', function (req, res) {
@@ -34,6 +35,19 @@ router.post('/', (req, res) => {
 	order.save((err, results) => {
 		if (!err) {
 			res.send(results);
+
+			Book.update(
+				{_id: mongoose.Types.ObjectId(req.body.bookId)},
+				{$inc: { orderedTimes: 1 }},
+				(err, data) => {
+					if (!err) {
+						console.log(data);
+					}
+					else {
+						console.log(err);
+					}
+				}
+			);
 		}
 		else {
 			res.status(500).send(err);
