@@ -23,18 +23,6 @@ function updateItem (Model, data, successAction) {
 	});
 }
 
-function convertDatesInArray(jsonObj) {
-	let dataArr = jsonObj.json();
-
-	dataArr = dataArr.map((el) => {
-		let date = el.yearOfPublication;
-		el.yearOfPublication = date ? new Date(date) : '';
-		return el;
-	});
-
-	return dataArr;		
-}
-
 function combineUserNamesInArr(jsonObj) {
 	let usersArr = jsonObj.json();
 
@@ -57,4 +45,4 @@ webix.protoUI({
 	}
 }, webix.ui.list);
 
-export {toggleElement, addItem, updateItem, convertDatesInArray, combineUserNamesInArr};
+export {toggleElement, addItem, updateItem, combineUserNamesInArr};

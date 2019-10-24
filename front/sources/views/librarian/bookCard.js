@@ -1,7 +1,7 @@
 import {JetView} from 'webix-jet';
 import booksModel from '../../models/books';
 import {DUMMYCOVER} from '../../consts';
-import {toggleElement, addItem, updateItem, convertDatesInArray} from '../../scripts'; 
+import {toggleElement, addItem, updateItem} from '../../scripts'; 
 import filesModel from '../../models/files';
 
 export default class BookCard extends JetView {
@@ -210,8 +210,7 @@ export default class BookCard extends JetView {
 
 		const successAction = (newData) => {
 			this.webix.message('Success');
-			const booksArr = convertDatesInArray(newData);
-			$$('dtLibrary').parse(booksArr);
+			$$('dtLibrary').parse(newData.json());
 			this.hideWindow();
 		};
 

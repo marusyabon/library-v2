@@ -62,4 +62,10 @@ app.use(function (err, req, res, next) {
 	}
 });
 
+global.log = function () {
+	try {
+		return console.log.apply(console, arguments);
+	} catch (_error) { }
+};
+
 export default app;

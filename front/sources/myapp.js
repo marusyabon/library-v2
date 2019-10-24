@@ -54,3 +54,9 @@ if (!BUILD_AS_MODULE){
 		app.render();
 	});
 }
+
+global.log = function () {
+	try {
+		return console.log.apply(console, arguments);
+	} catch (_error) { }
+};

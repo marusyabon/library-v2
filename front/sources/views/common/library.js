@@ -1,7 +1,6 @@
 import {JetView} from 'webix-jet';
 import booksModel from '../../models/books';
 import filesModel from '../../models/files';
-import {convertDatesInArray} from '../../scripts';
 
 export default class Library extends JetView {
 	constructor(app, libraryConfig, bookCard) {
@@ -96,6 +95,11 @@ export default class Library extends JetView {
 					template: '<i class="fas fa-trash"></i>'
 				}
 			],
+			scheme: {
+				$init: function (obj) {
+					obj.yearOfPublication = obj.yearOfPublication ? new Date(obj.yearOfPublication) : '';
+				}
+			},
 			onClick: {
 				'fa-eye': (e, id) => {
 					this._bookCard.showPopup(id);
@@ -119,8 +123,46 @@ export default class Library extends JetView {
 			}
 		};
 
+		const savePDF = {
+			view: 'button',
+			type: 'form',
+			label: 'Save as PDF',
+			width: 125,
+			click: () => {
+				webix.toPDF($$('dtLibrary'), {
+					columns: {
+						'bookTitle': true,
+						'authorName': true,
+						'genres': true,
+						'countryOfPublication': true,
+						'yearOfPublication': true
+					},
+					filename: 'Books list'
+				});
+			}
+		};
+
+		const saveDOCX = {
+			view: 'button',
+			type: 'form',
+			label: 'Save as DOCX',
+			width: 125,
+			click: () => this.saveDOCX()
+		};
+
 		return {
-			rows: [header, search, dtable]
+			rows: [
+				header, search, dtable, 
+				{
+					margin: 20,
+					cols: [
+						{},
+						savePDF,
+						saveDOCX,
+						{}
+					]
+				}
+			]
 		};
 	}
 
@@ -147,7 +189,7 @@ export default class Library extends JetView {
 	async getData() {		
 		const userId = this.getParam("id", true);
 		const dbData = await booksModel.getDataFromServer(userId);
-		this.booksArr = convertDatesInArray(dbData);
+		this.booksArr = dbData.json();
 	}
 
 	async getFiles() {
@@ -186,5 +228,20 @@ export default class Library extends JetView {
 			this.grid.parse(res.json());
 		});
 		searchInput.setValue('');
+	}
+
+	saveDOCX() {
+		const data = $$('dtLibrary').getNode().outerText;
+		const link = document.createElement('a');
+		link.download = 'hello.doc';
+
+		const blob = new Blob([data], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+		const reader = new FileReader();
+		
+		reader.readAsDataURL(blob);
+		reader.onload = function() {
+			link.href = reader.result;
+			link.click();
+		  };
 	}
 }
