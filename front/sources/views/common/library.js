@@ -231,17 +231,44 @@ export default class Library extends JetView {
 	}
 
 	saveDOCX() {
-		const data = $$('dtLibrary').getNode().outerText;
-		const link = document.createElement('a');
-		link.download = 'hello.doc';
+		const dtData = $$('dtLibrary').serialize();
+		let docData = '';
+		const dateFormat = webix.Date.dateToStr('%Y');
 
-		const blob = new Blob([data], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+		dtData.forEach((el) => {
+			for (var key in el) {
+				switch(key){
+					case 'bookTitle': docData += `Title: ${el[key]};\n`;
+						break;
+					case 'authorName': docData += `Author: ${el[key]};\n`;
+						break;
+					case 'genres': docData += `Genre: ${el[key]};\n`;
+						break;
+					case 'countryOfPublication': docData += `Country of publication: ${el[key]};\n`;
+						break;
+					case 'availableCopies': docData += `Available copies: ${el[key]};\n`;
+						break;
+					case 'publishingHouse': docData += `Publishing house: ${el[key]};\n`;
+						break;
+					case 'numberOfPages': docData += `Number of pages: ${el[key]};\n`;
+						break;
+					case 'yearOfPublication': docData += `Year of publication: ${dateFormat(el[key])};\n`;
+						break;
+				}
+			}
+			docData += '\n\n'
+		});
+
+		const link = document.createElement('a');
+		link.download = 'data.doc';
+
+		const blob = new Blob([docData], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 		const reader = new FileReader();
 		
 		reader.readAsDataURL(blob);
 		reader.onload = function() {
 			link.href = reader.result;
 			link.click();
-		  };
+		};
 	}
 }
