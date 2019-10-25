@@ -11,11 +11,11 @@ function addSubscriber (email, data, update) {
 	}
 
 	return mailchimp.post(`lists/${MAILCHIMP_LIST_ID}`, {
-		update_existing: update !== undefined ? update : true,
+		'update_existing': update !== undefined ? update : true,
 		members: [{
-			email_address: email.toLowerCase(),
+			'email_address': email.toLowerCase(),
 			status: 'subscribed',
-			merge_fields: {},
+			'merge_fields': {},
 		}],
 	}).then(m => {
 		if (m.errors.length) {

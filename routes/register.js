@@ -30,7 +30,7 @@ router.post('/', (req, res) => {
 								console.error(err.stack);
 								return res.send({data: err});
 							}
-							ms.addSubscriber(username);
+							// ms.addSubscriber(username);
 
 							const payload = {
 								id: result.insertId,
