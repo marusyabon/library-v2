@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import connection from '../db';
 import mysql from 'mysql2';
 import jwt from 'jsonwebtoken';
-import ms from '../mailchimp/mc';
 
 const router = express.Router();
 
@@ -30,7 +29,6 @@ router.post('/', (req, res) => {
 								console.error(err.stack);
 								return res.send({data: err});
 							}
-							// ms.addSubscriber(username);
 
 							const payload = {
 								id: result.insertId,

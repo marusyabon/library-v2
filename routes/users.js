@@ -2,6 +2,7 @@ import { Router } from 'express';
 import connection from '../db';
 import mysql from 'mysql2';
 import bcrypt from 'bcrypt';
+import ms from '../mailchimp/mc';
 
 const router = Router();
 
@@ -104,6 +105,8 @@ router.put('/', function (req, res) {
 			}
 		}
 	);
+
+	ms.checkSubscriber(user.email, user.accept_newsletters);
 });
 
 export default router;

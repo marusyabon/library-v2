@@ -27,4 +27,46 @@ function addSubscriber (email, data, update) {
 	});
 }
 
-export default {addSubscriber};
+function unsubscribe(email, data, update) {
+	return mailchimp.post(`lists/${MAILCHIMP_LIST_ID}`, {
+		'update_existing': update !== undefined ? update : true,
+		members: [{
+			'email_address': email.toLowerCase(),
+			status: 'unsubscribed',
+			'merge_fields': {},
+		}],
+	}).then(m => {
+		if (m.errors.length) {
+			console.log('Error adding new subscriber to MC', m.errors);
+		}
+		return m;
+	}).catch(err => {
+		console.warn('Failed adding subscriber', email, err);
+	});
+}
+
+function checkSubscriber(email, isSubscribed) {
+	return mailchimp.get(`lists/${MAILCHIMP_LIST_ID}/members?members.email_address=${email}&fields=members.email_address,members.status`
+	).then(res => {
+		const member = res.members.find((item) => {
+			return item.email_address == email;
+		});
+
+		const subscribed = isSubscribed ? 'subscribed' : 'unsubscribed';
+
+		if(member.status !== subscribed) {
+			if(isSubscribed == 1) {
+
+				addSubscriber(email);
+			}
+			else {
+				unsubscribe(email);
+			}
+		}
+		console.log(member);
+	}).catch(err => {
+		console.warn('Failed adding subscriber', email, err);
+	});
+}
+
+export default {addSubscriber, checkSubscriber};
