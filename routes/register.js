@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import connection from '../db';
 import mysql from 'mysql2';
 import jwt from 'jsonwebtoken';
+import ms from '../mailchimp/mc';
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.post('/', (req, res) => {
 	const { username, password } = req.body;
 	const hashCost = 10;
 	const role = 1;
-
+	
 	try {
 		const query = mysql.format('SELECT * FROM `users` WHERE `email` = ?', [username]);
 
@@ -29,6 +30,7 @@ router.post('/', (req, res) => {
 								console.error(err.stack);
 								return res.send({data: err});
 							}
+							ms.addSubscriber(username);
 
 							const payload = {
 								id: result.insertId,
@@ -43,7 +45,7 @@ router.post('/', (req, res) => {
 							res.status(200).send({id: result.insertId, status: result.serverStatus});
 						}
 					);
-				});	
+				});
 			}			
 		);
 
