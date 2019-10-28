@@ -165,6 +165,7 @@ export default class BookCard extends JetView {
 
 	init() {
 		this.form = this.$$('bookCardLibrarian');
+		this.dtLibrary = $$('dtLibrary');
 	}
 
 	showPopup(id) {
@@ -205,21 +206,21 @@ export default class BookCard extends JetView {
 		this.getRoot().show();	
 	}
 
+	successAction (newData) {
+		this.webix.message('Success');
+		this.dtLibrary.parse(newData.json());
+		this.hideWindow();
+	}
+
 	saveForm() {
 		const data = this.form.getValues();
 
-		const successAction = (newData) => {
-			this.webix.message('Success');
-			$$('dtLibrary').parse(newData.json());
-			this.hideWindow();
-		};
-
 		if(this.form.validate()) {
 			if(this.isNew) {
-				addItem(booksModel, data, successAction);				
+				addItem(booksModel, data, this.successAction.bind(this));				
 			}
 			else {
-				updateItem(booksModel, data, successAction);
+				updateItem(booksModel, data, this.successAction.bind(this));
 			}
 
 			this.$$('bookFiles').send((response) => {

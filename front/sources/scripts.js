@@ -7,27 +7,23 @@ function toggleElement (condition, element) {
 	}
 }
 
-function addItem (Model, data, successAction) {
-	Model.addItem(data).then(() => {
-		Model.getDataFromServer().then((data) => {
-			successAction(data);
-		});			
-	});
+async function addItem (Model, data, successAction) {
+	await Model.addItem(data);
+	const newData = await Model.getDataFromServer();
+	successAction(newData);
 }
 
-function updateItem (Model, data, successAction) {
-	Model.updateItem(data).then(() => {
-		Model.getDataFromServer().then((data) => {
-			successAction(data);
-		});
-	});
+async function updateItem (Model, data, successAction) {
+	await Model.updateItem(data);
+	const newData = await Model.getDataFromServer();
+	successAction(newData);
 }
 
 function combineUserNamesInArr(jsonObj) {
 	let usersArr = jsonObj.json();
 
 	usersArr = usersArr.map((el) => {
-		el['full_name'] = el.user_name + ' ' + el.user_surname;
+		el['full_name'] = `${el.user_name} ${el.user_surname}`;
 		return el;
 	});
 

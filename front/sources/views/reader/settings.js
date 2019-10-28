@@ -47,10 +47,13 @@ export default class Settings extends JetView {
 			this.$$('userDataForm').setValues(userData);
 		});	
 	}
+	
+	successAction() {
+		webix.message('New data saved');
+	}
 
 	saveForm () {
 		const data = this.$$('userDataForm').getValues();
-		const successAction = this.webix.message('New data saved');
-		updateItem(usersModel, data, successAction);
+		updateItem(usersModel, data, this.successAction);
 	}
 }

@@ -118,8 +118,10 @@ export default class BookCard extends JetView {
 		this.likeButton = this.$$('likeButton');
 		this.form = this.$$('bookCardReader');
 		this.filesList = this.$$('availableTextFiles');
+		this.audiosList = this.$$('availableAudioFiles');
 		this.orderBtn = this.$$('orderBook');
 		this.userId = this.getParam('id', true);
+		this.bookCover = this.$$('bookCover');
 
 		booksModel.getBook(id).then((bookData) => {
 			const book = bookData.json();
@@ -129,10 +131,8 @@ export default class BookCard extends JetView {
 
 			this.clearForm();
 
-			this.form.setValues(book);			
-			this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
 			this.form.setValues(book);
-			this.$$('bookCover').setValues(book.coverPhoto || DUMMYCOVER);
+			this.bookCover.setValues(book.coverPhoto || DUMMYCOVER);
 			this.likeButton.define('badge', book.count_likes || '0');
 
 			const filesArr = book.files;
@@ -149,8 +149,8 @@ export default class BookCard extends JetView {
 						break;
 				}
 			});
-			this.$$('availableTextFiles').parse(textFiles);
-			this.$$('availableAudioFiles').parse(audioFiles);
+			this.filesList.parse(textFiles);
+			this.audiosList.parse(audioFiles);
 
 			toggleElement(textFiles.length, this.$$('downloadBook'));
 			toggleElement(book.availableCopies, this.$$('orderBook'));
