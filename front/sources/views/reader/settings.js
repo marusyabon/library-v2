@@ -43,7 +43,7 @@ export default class Settings extends JetView {
 
 		usersModel.getItem(id).then((data) => {
 			const userData = data.json();
-			userData.birth_date = new Date (userData.birth_date);
+			userData.birth_date = new Date(userData.birth_date);
 			this.$$('userDataForm').setValues(userData);
 		});	
 	}

@@ -52,10 +52,10 @@ function checkSubscriber(email, isSubscribed) {
 			return item.email_address == email;
 		});
 
-		const subscribed = isSubscribed ? 'subscribed' : 'unsubscribed';
+		const subscribed = Number.parseInt(isSubscribed) ? 'subscribed' : 'unsubscribed';
 
 		if(member.status !== subscribed) {
-			if(isSubscribed == 1) {
+			if(Number.parseInt(isSubscribed)) {
 
 				addSubscriber(email);
 			}
@@ -63,7 +63,6 @@ function checkSubscriber(email, isSubscribed) {
 				unsubscribe(email);
 			}
 		}
-		console.log(member);
 	}).catch(err => {
 		console.warn('Failed adding subscriber', email, err);
 	});

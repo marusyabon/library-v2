@@ -37,7 +37,7 @@ router.get('/readers', function (req, res) {
 
 router.get('/:id', function (req, res) {
 	const id = req.params.id;
-	const query = mysql.format('SELECT id, user_name, user_surname, passport_ID, birth_date, address, phone_numbers, card_reader_number, email, role_id \
+	const query = mysql.format('SELECT id, user_name, user_surname, passport_ID, birth_date, address, phone_numbers, card_reader_number, email, role_id, accept_newsletters \
 	FROM `users` WHERE `id` = ?', [id]);
 
 	connection.query(query,
@@ -83,7 +83,7 @@ router.post('/', (req, res) => {
 
 router.put('/', function (req, res) {
 	const user = req.body;
-	const query = mysql.format('UPDATE `users` SET `user_name` = ?, `user_surname` = ?, `passport_ID` = ?, `birth_date` = ?, `address` = ?, `phone_numbers` = ?, `email` = ?, `role_id` = ? WHERE `id` = ?', [
+	const query = mysql.format('UPDATE `users` SET `user_name` = ?, `user_surname` = ?, `passport_ID` = ?, `birth_date` = ?, `address` = ?, `phone_numbers` = ?, `email` = ?, `role_id` = ?, `accept_newsletters` = ? WHERE `id` = ?', [
 		user.user_name,
 		user.user_surname,
 		user.passport_ID,
@@ -92,6 +92,7 @@ router.put('/', function (req, res) {
 		user.phone_numbers,
 		user.email,
 		user.role_id,
+		user.accept_newsletters,
 		user.id
 	]);
 
