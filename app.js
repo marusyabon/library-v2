@@ -3,6 +3,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import mongoose from 'mongoose';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
@@ -14,7 +15,6 @@ import logoutRouter from './routes/logout';
 import likesRouter from './routes/likes';
 import filesRouter from './routes/files';
 import audioRouter from './routes/audio';
-import commentsRouter from './routes/comments';
 import ordersRouter from './routes/orders';
 import fileUpload from 'express-fileupload';
 import './config/passport';
@@ -26,6 +26,16 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());	
 app.use(express.static(path.join(__dirname, 'public')));
+
+mongoose.connect('mongodb://localhost:27017/libraryDB', { useNewUrlParser: true }, function (err, db) {
+	if(!err) {
+		console.log('Mongo connected');
+		db.collections.books.createIndex( { bookTitle: 'text', authorName: 'text', genres: 'text', countryOfPublication: 'text', publishingHouse: 'text' } );
+	}
+});
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 
 app.use(fileUpload());
  
@@ -39,7 +49,6 @@ app.use('/logout', logoutRouter);
 app.use('/likes', likesRouter);
 app.use('/files', filesRouter);
 app.use('/audio', audioRouter);
-app.use('/comments', commentsRouter);
 app.use('/orders', ordersRouter);
 
 app.use(function (err, req, res, next) {
@@ -49,8 +58,12 @@ app.use(function (err, req, res, next) {
 		console.log(err);
 	} else {
 		console.log(err);
-		// res.status(err.statusCode).send(err.message);
+		res.status(err.statusCode).send(err.message);
 	}
 });
+
+global.log = function () {
+	return console.log.apply(console, arguments);
+};
 
 export default app;

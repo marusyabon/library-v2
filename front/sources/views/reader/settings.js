@@ -28,6 +28,7 @@ export default class Settings extends JetView {
 				{ view: 'text', label: 'Address',name: 'address', labelWidth: 90, labelAlign: 'right'},
 				{ view: 'text', label: 'Phone',name: 'phone_numbers', labelWidth: 90, labelAlign: 'right'},
 				{ view: 'text', label: 'Email',name: 'email', labelWidth: 90, labelAlign: 'right'},
+				{ view: 'checkbox', labelRight: 'I agree to receive emails', name: 'accept_newsletters', labelWidth: 87 },
 				button
 			]
 		};
@@ -38,18 +39,21 @@ export default class Settings extends JetView {
 	}
 
 	init() {
-		const id = this.getParam("id", true);
+		const id = this.getParam('id', true);
 
 		usersModel.getItem(id).then((data) => {
-			const userData = data.json()[0];
-			userData.birth_date = new Date (userData.birth_date);
+			const userData = data.json();
+			userData.birth_date = new Date(userData.birth_date);
 			this.$$('userDataForm').setValues(userData);
 		});	
+	}
+	
+	successAction() {
+		webix.message('New data saved');
 	}
 
 	saveForm () {
 		const data = this.$$('userDataForm').getValues();
-		const successAction = this.webix.message('New data saved');
-		updateItem(usersModel, data, successAction);
+		updateItem(usersModel, data, this.successAction);
 	}
 }

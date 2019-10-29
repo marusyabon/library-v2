@@ -1,5 +1,7 @@
 {
     "env": {
+        "node": true,
+        "mocha": true,
         "browser": true,
         "es6": true
     },
@@ -13,7 +15,8 @@
         "sourceType": "module",
         "ecmaVersion": 6,
         "ecmaFeatures": {
-        "experimentalObjectRestSpread": true}
+            "experimentalObjectRestSpread": true
+        }
     },
     "rules": {
         "indent": [
@@ -21,6 +24,9 @@
             "tab",
             {"SwitchCase":1}
         ],
+        "quotes": [1, "single", "avoid-escape"],
+        "strict": 0,
+        "camelcase": 1,
         "semi": [
             "error",
             "always"

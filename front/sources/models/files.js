@@ -24,6 +24,10 @@ class FilesModel {
 	downloadItem(id) {
 		return webix.ajax().response('blob').get(`${this._url}download/${id}`);	
 	}
+
+	removeItem(id) {
+		return webix.ajax().del(`${this._url}${id}`);
+	}
 }
 
 export default new FilesModel();

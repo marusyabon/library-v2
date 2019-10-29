@@ -1,4 +1,4 @@
-import { JetView } from 'webix-jet';
+import {JetView} from 'webix-jet';
 import booksModel from '../../models/books';
 import filesModel from '../../models/files';
 
@@ -18,7 +18,7 @@ export default class Library extends JetView {
 
 		const dtable = {
 			view: 'datatable',
-			id: 'dt_library',
+			id: 'dtLibrary',
 			select: true,
 			columns: [
 				{
@@ -26,13 +26,13 @@ export default class Library extends JetView {
 					hidden: true,
 				},
 				{
-					id: 'book_title',
+					id: 'bookTitle',
 					sort: 'text',
 					fillspace: 1,
 					header: ['Title', {content: 'textFilter'}]
 				},
 				{
-					id: 'author_name',
+					id: 'authorName',
 					sort: 'text',
 					fillspace: 1,
 					header: ['Author', {content: 'textFilter'}]
@@ -45,22 +45,22 @@ export default class Library extends JetView {
 					header: ['Genres', {content: 'selectFilter'}]
 				},
 				{
-					id: 'country_of_publication',
+					id: 'countryOfPublication',
 					sort: 'text',
 					width: 80,
 					css: 'center',
 					header: ['Country', {content: 'selectFilter'}]
 				},
 				{
-					id: 'year_of_publication',
+					id: 'yearOfPublication',
 					sort: 'date',
 					width: 80,
 					css: 'center',
-					format: webix.Date.dateToStr("%Y"),
-					header: ['Year', {content: 'dateRangeFilter'}]
+					format: webix.Date.dateToStr('%Y'),
+					header: ['Year', {content:"dateRangeFilter"}]
 				},
 				{
-					id: 'available_copies',
+					id: 'availableCopies',
 					width: 80,
 					css: 'center',
 					header: 'Available'
@@ -95,12 +95,17 @@ export default class Library extends JetView {
 					template: '<i class="fas fa-trash"></i>'
 				}
 			],
+			scheme: {
+				$init: function (obj) {
+					obj.yearOfPublication = obj.yearOfPublication ? new Date(obj.yearOfPublication) : '';
+				}
+			},
 			onClick: {
 				'fa-eye': (e, id) => {
-					this.showBookCard(id);
+					this._bookCard.showPopup(id);
 				},
 				'fa-edit': (e, id) => {
-					this.showBookCard(id);
+					this._bookCard.showPopup(id);
 				},
 				'fa-trash': (e, id) => {
 					this.removeBook(id);
@@ -108,13 +113,61 @@ export default class Library extends JetView {
 			}
 		};
 
+		const search = {
+			view: 'search',
+			id: 'librarySeach',
+			placeholder: 'Search',
+			on: {
+				onEnter: () => this.search(),
+				onSearchIconClick: () => this.search()
+			}
+		};
+
+		const savePDF = {
+			view: 'button',
+			type: 'form',
+			label: 'Save as PDF',
+			width: 125,
+			click: () => {
+				webix.toPDF($$('dtLibrary'), {
+					columns: {
+						'bookTitle': true,
+						'authorName': true,
+						'genres': true,
+						'countryOfPublication': true,
+						'yearOfPublication': true
+					},
+					filename: 'Books list'
+				});
+			}
+		};
+
+		const saveDOCX = {
+			view: 'button',
+			type: 'form',
+			label: 'Save as DOCX',
+			width: 125,
+			click: () => this.saveDOCX()
+		};
+
 		return {
-			rows: [header, dtable]
+			rows: [
+				header, search, dtable, 
+				{
+					margin: 20,
+					cols: [
+						{},
+						savePDF,
+						saveDOCX,
+						{}
+					]
+				}
+			]
 		};
 	}
 
 	async init() {
-		this.grid = $$('dt_library');
+		this.grid = $$('dtLibrary');
 
 		switch (this.libraryConfig.role) {
 			case 'reader': 
@@ -128,22 +181,15 @@ export default class Library extends JetView {
 		this.grid.refreshColumns();
 		await this.getData();
 		await this.getFiles();
-		this.checkFiles();		
-
+		this.checkFiles();
 		this.grid.parse(this.booksArr);
 		this._bookCard = this.ui(this.bookCard);
 	}
 
 	async getData() {		
-		const user_id = this.getParam("id", true);
-		const dbData = await booksModel.getDataFromServer(user_id);
-		let booksArr = dbData.json();
-
-		booksArr = booksArr.map((el) => {
-			el.year_of_publication = new Date(el.year_of_publication);
-			return el;
-		});
-		this.booksArr = booksArr;
+		const userId = this.getParam("id", true);
+		const dbData = await booksModel.getDataFromServer(userId);
+		this.booksArr = dbData.json();
 	}
 
 	async getFiles() {
@@ -153,7 +199,7 @@ export default class Library extends JetView {
 
 	checkFiles() {
 		this.booksArr.forEach((book, i) => {
-			const isFiles = this.filesArr.find((el) => el.book_id === book.id);
+			const isFiles = this.filesArr.find((el) => el.bookId === book.id);
 			
 			if(isFiles) {
 				this.booksArr[i].ebook = 'yes';
@@ -164,17 +210,65 @@ export default class Library extends JetView {
 		});
 	}
 
-	showBookCard(id) {
-		const book = this.booksArr.find(el => el.id == id);
-		this._bookCard.showPopup(book);
-	}
-
 	removeBook(id) {
-		booksModel.removeItem(id);
-		return this.grid.remove(id);
+		booksModel.removeItem(id).then(() => {
+			this.grid.remove(id);
+		});		
 	}
 
 	addBook() {
 		this._bookCard.showPopup();
+	}
+
+	search() {
+		const searchInput = $$('librarySeach');
+		const value = searchInput.getValue();
+		booksModel.search(value).then((res) => {
+			this.grid.clearAll();
+			this.grid.parse(res.json());
+		});
+		searchInput.setValue('');
+	}
+
+	saveDOCX() {
+		const dtData = $$('dtLibrary').serialize();
+		let docData = '';
+		const dateFormat = webix.Date.dateToStr('%Y');
+
+		dtData.forEach((el) => {
+			for (var key in el) {
+				switch(key){
+					case 'bookTitle': docData += `Title: ${el[key]};\n`;
+						break;
+					case 'authorName': docData += `Author: ${el[key]};\n`;
+						break;
+					case 'genres': docData += `Genre: ${el[key]};\n`;
+						break;
+					case 'countryOfPublication': docData += `Country of publication: ${el[key]};\n`;
+						break;
+					case 'availableCopies': docData += `Available copies: ${el[key]};\n`;
+						break;
+					case 'publishingHouse': docData += `Publishing house: ${el[key]};\n`;
+						break;
+					case 'numberOfPages': docData += `Number of pages: ${el[key]};\n`;
+						break;
+					case 'yearOfPublication': docData += `Year of publication: ${dateFormat(el[key])};\n`;
+						break;
+				}
+			}
+			docData += '\n\n'
+		});
+
+		const link = document.createElement('a');
+		link.download = 'data.doc';
+
+		const blob = new Blob([docData], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+		const reader = new FileReader();
+		
+		reader.readAsDataURL(blob);
+		reader.onload = function() {
+			link.href = reader.result;
+			link.click();
+		};
 	}
 }

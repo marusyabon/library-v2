@@ -13,17 +13,17 @@ router.get('/:book_id', (req, res) => {
 				res.send(results);
 			}
 			else {
-				res.status(500);
+				res.status(500).send(err);
 			}
 		}
 	);	
 });
 
 router.post('/', function (req, res) {
-	const book_id = req.body.bookId;
-	const user_id = req.body.userId;
+	const bookId = req.body.bookId;
+	const userId = req.body.userId;
 
-	const query = mysql.format("INSERT INTO likes (`book_id`, `user_id`) VALUES (?,?)", [book_id, user_id]);
+	const query = mysql.format('INSERT INTO likes (`book_id`, `user_id`) VALUES (?,?)', [bookId, userId]);
 	connection.query(
 		query,
 		function (err, results) {
@@ -31,8 +31,7 @@ router.post('/', function (req, res) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.status(304).send(err);
+				res.status(500).send(err);
 			}
 			
 		}
@@ -40,10 +39,10 @@ router.post('/', function (req, res) {
 });
 
 router.delete('/', function (req, res) {
-	const book_id = req.body.bookId;
-	const user_id = req.body.userId;
+	const bookId = req.body.bookId;
+	const userId = req.body.userId;
 
-	const query = mysql.format("DELETE FROM likes WHERE `book_id` = ? AND `user_id` = ?", [book_id, user_id]);
+	const query = mysql.format('DELETE FROM likes WHERE `book_id` = ? AND `user_id` = ?', [bookId, userId]);
 	connection.query(
 		query,
 		function (err, results) {
@@ -51,8 +50,7 @@ router.delete('/', function (req, res) {
 				res.send(results);
 			}
 			else {
-				console.log(err);
-				res.status(304).send(err);
+				res.status(500).send(err);
 			}			
 		}
 	);

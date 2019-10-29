@@ -1,10 +1,10 @@
 import { JetView } from 'webix-jet';
 import likesModel from '../../models/likes';
 import {toggleElement} from '../../scripts'; 
-import {DUMMYCOVER, SUCCESS} from '../../consts'; 
+import {DUMMYCOVER} from '../../consts'; 
+import booksModel from '../../models/books';
 import filesModel from '../../models/files';
 import ordersModel from '../../models/orders';
-import CommentClass from './commentObj';
 
 export default class BookCard extends JetView {
 	config() {
@@ -23,21 +23,20 @@ export default class BookCard extends JetView {
 			localId: 'bookCardReader',			
 			view: 'form',
 			elements: [
-				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'book_title', readonly: true },
-				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'author_name', readonly: true },
+				{ view: 'text', label: 'Title', labelWidth: 130, width: 310, labelAlign: 'right', name: 'bookTitle', readonly: true },
+				{ view: 'text', label: 'Author', labelWidth: 130, width: 310, labelAlign: 'right', name: 'authorName', readonly: true },
 				{ view: 'text', label: 'Genres', labelWidth: 130, width: 310, labelAlign: 'right', name: 'genres', readonly: true },
-				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'country_of_publication', readonly: true },
-				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishing_house', readonly: true },
-				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'available_copies', readonly: true },
-				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'number_of_pages', readonly: true }
+				{ view: 'text', label: 'Country', labelWidth: 130, width: 310, labelAlign: 'right', name: 'countryOfPublication', readonly: true },
+				{ view: 'text', label: 'Publishing house', labelWidth: 130, width: 310, labelAlign: 'right', name: 'publishingHouse', readonly: true },
+				{ view: 'text', label: 'Available copies', labelWidth: 130, width: 310, labelAlign: 'right', name: 'availableCopies', readonly: true },
+				{ view: 'text', label: 'Pages', labelWidth: 130, width: 310, labelAlign: 'right', name: 'numberOfPages', readonly: true }
 			]			
 		};
 
 		const availableTextFiles = {
 			view: 'activeList',
 			localId: 'availableTextFiles',
-			template: "#name#" +
-					"<span class='list_button'><i class = 'fas fa-download'></i></span>",
+			template: '#name#<span class="list_button"><i class = "fas fa-download"></i></span>',
 			on: {
 				onItemClick: (id) => {
 					const bookName = this.$$('availableTextFiles').getItem(id).name;
@@ -50,8 +49,8 @@ export default class BookCard extends JetView {
 		};
 
 		const availableAudioFiles = {
-			view: "activeList",
-			localId: "availableAudioFiles",
+			view: 'activeList',
+			localId: 'availableAudioFiles',
 			type:{
 				height:100
 			},
@@ -92,63 +91,6 @@ export default class BookCard extends JetView {
 			}
 		};
 
-		const toggleCommentsBtn = {
-			view: 'button',
-			localId: 'commentButton',
-			type: 'htmlbutton',
-			label: 'Comments <i class="fas fa-angle-down">',
-			width: 120,
-			click: () => { 
-				this.Comment.toggleComments(this.commentsGot, this.$$('commentButton'));
-			}
-		};
-
-		const addComment = {
-			margin: 5,
-			paddingY: 10,
-			paddingX: 17,
-			rows: [
-				{
-					view:'textarea',
-					localId: 'userComment',
-					label: 'Comment',
-					labelPosition: 'top',
-					height: 80
-				},
-				{
-					cols: [
-						{},
-						{
-							view: 'button',
-							localId: 'saveCommentBtn',
-							type: 'form',
-							label: 'Send',
-							width: 80,
-							click: () => {
-								this.Comment.saveComment(this.$$('userComment'));
-							}
-						}
-					]
-				}
-			]
-		};
-
-		const comments = {
-			rows: [
-				{
-					paddingY: 10,
-					cols: [
-						{}, toggleCommentsBtn, {}
-					]
-				},
-				{
-					localId: 'commentLayout',
-					hidden: true,
-					rows: []
-				}
-			]
-		};
-
 		return {
 			view: 'popup',
 			position:'center',
@@ -165,52 +107,40 @@ export default class BookCard extends JetView {
 							cols: [
 								orderBook, downloadBook, {}, likeBook
 							]
-						},
-						addComment,
-						comments
+						}
 					] 
 				}
 			}
 		};
 	}
 	
-	showPopup(book) {
+	showPopup(id) {
 		this.likeButton = this.$$('likeButton');
 		this.form = this.$$('bookCardReader');
 		this.filesList = this.$$('availableTextFiles');
-		this.toggleCommentsBtn = this.$$('commentButton');
+		this.audiosList = this.$$('availableAudioFiles');
 		this.orderBtn = this.$$('orderBook');
-		this.commentLayout = this.$$('commentLayout');
-		this.book = book;
-		this.bookId = book.id;
-		this.userId = this.getParam("id", true);
-		this.Comment = new CommentClass(this.userId, this.bookId, this.commentLayout);
-		
-		this.clearForm();
-		this.form.setValues(book);
-		this.$$('bookCover').setValues(book.cover_photo || DUMMYCOVER);
-		this.likeButton.define('badge', book.count_likes || '0');
-		this.getFiles();
-		this.Comment.getComments();	
-		this.commentsGot = true;	
-		
-		toggleElement(book.book_file, this.$$('downloadBook'));
-		toggleElement(book.available_copies, this.$$('orderBook'));
-		this.toggleLike(book.user_id == this.userId);
-		this.toggleOrder(book.order_date);
+		this.userId = this.getParam('id', true);
+		this.bookCover = this.$$('bookCover');
 
-		this.getRoot().show();
-	}
+		booksModel.getBook(id).then((bookData) => {
+			const book = bookData.json();
 
-	getFiles() {
-		filesModel.getItems(this.bookId).then((dbData) => {
-			const filesArr = dbData.json();
+			this.book = book;
+			this.bookId = book.id;
 
+			this.clearForm();
+
+			this.form.setValues(book);
+			this.bookCover.setValues(book.coverPhoto || DUMMYCOVER);
+			this.likeButton.define('badge', book.count_likes || '0');
+
+			const filesArr = book.files;
 			const textFiles = [];
 			const audioFiles = [];
 
 			filesArr.forEach((file) => {
-				switch(file.data_type) {
+				switch(file.dataType) {
 					case 'text': 
 						textFiles.push(file);
 						break;
@@ -219,23 +149,28 @@ export default class BookCard extends JetView {
 						break;
 				}
 			});
-			this.$$('availableTextFiles').parse(textFiles);
-			this.$$('availableAudioFiles').parse(audioFiles);
+			this.filesList.parse(textFiles);
+			this.audiosList.parse(audioFiles);
+
+			toggleElement(textFiles.length, this.$$('downloadBook'));
+			toggleElement(book.availableCopies, this.$$('orderBook'));
+			
+			this.toggleLike(book.userId == this.userId);
+			this.toggleOrder(book.orderDate);
+	
+			this.getRoot().show();
 		});
 	}
 
 	orderBook() {
 		const order = {
-			user_id: this.userId,
-			book_id: this.bookId,
-			order_date: new Date()
+			userId: this.userId,
+			bookId: this.bookId,
+			orderDate: new Date()
 		};
 
-		ordersModel.addOrder(order).then((response) => {
-			const status = response.json().serverStatus;
-			if(status == SUCCESS) {
-				this.setOrderedVal();
-			}
+		ordersModel.addItem(order).then(() => {
+			this.setOrderedVal();
 		});
 	}
 
@@ -261,20 +196,14 @@ export default class BookCard extends JetView {
 	}
 
 	likeBook() {
-		if(this.book.user_id == this.userId) {
-			likesModel.removeLike(this.userId, this.bookId).then((response) => {
-				const status = response.json().serverStatus;
-				if(status == SUCCESS) {
-					this.unsetLike();
-				}
+		if(this.book.userId == this.userId) {
+			likesModel.removeLike(this.userId, this.bookId).then(() => {
+				this.unsetLike();
 			});
 		}
 		else {
-			likesModel.addLike(this.userId, this.bookId).then((response) => {
-				const status = response.json().serverStatus;
-				if(status == SUCCESS) {
-					this.setLike();
-				}
+			likesModel.addLike(this.userId, this.bookId).then(() => {
+				this.setLike();
 			});
 		}	
 	}	
@@ -303,6 +232,5 @@ export default class BookCard extends JetView {
 		this.filesList.clearAll();
 		this.$$('availableTextFiles').clearAll();
 		this.$$('availableAudioFiles').clearAll();
-		this.Comment.clearComments();
 	}
 }

@@ -1,6 +1,5 @@
 import { JetView } from 'webix-jet';
 import ordersModel from '../../models/orders';
-import booksModel from '../../models/books';
 
 export default class OrdersForm extends JetView {
 	config() {
@@ -65,19 +64,15 @@ export default class OrdersForm extends JetView {
 		this.ordersList = this.$$('ordersList');
 		this.$$('userName').setHTML(userName);
 
-		webix.promise.all([
-			ordersModel.getIdList(this.userId), 
-			booksModel.getDataFromServer()
-		]).then((results) => {
-			const orders = results[0].json();
-			
-			let books = results[1].json();
-			this.allBooks = books;
-			books = books.map((el) => {
-				el.value = `${el.author_name} - ${el.book_title}`;
-				return el;
+		ordersModel.getItems(this.userId).then((results) => {
+			const orders = results.json();
+			this.incomingOrders = [...orders];
+
+			orders.forEach((el) => {
+				el.value = `${el.book.bookTitle} - ${el.book.authorName}`;
 			});
-			this.ordersList.define('suggest', books);
+
+			this.ordersList.define('suggest', orders);
 			this.ordersList.setValue(orders);
 			this.ordersList.refresh();
 		});
@@ -85,8 +80,21 @@ export default class OrdersForm extends JetView {
 	}
 
 	saveForm() {
-		const ordersListValue = this.ordersList.getValue();
-		ordersModel.updateUserOrders(ordersListValue, this.userId);
+		const values = this.ordersList.getValue();
+		const outcomingOrders = values.split(',');
+
+		if (this.incomingOrders.length !== outcomingOrders.length) {
+			const ordersToRemove = [];
+
+			this.incomingOrders.forEach((el) => {
+				if(outcomingOrders.indexOf(el.id) === -1) {
+					ordersToRemove.push(el.id);
+				}
+			});
+
+			ordersModel.removeUserOrders(ordersToRemove, this.userId);
+		}
+		
 		this.$$('userOrdersWindow').hide();
 	}
 }

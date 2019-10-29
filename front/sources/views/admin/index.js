@@ -2,6 +2,7 @@ import {JetView} from 'webix-jet';
 import Authorization from '../../authorization';
 import usersModel from '../../models/users';
 import UserForm from './userForm';
+import {combineUserNamesInArr} from '../../scripts';
 
 export default class TopView extends JetView{
 	config(){
@@ -30,39 +31,22 @@ export default class TopView extends JetView{
 				{
 					id: 'full_name',
 					header: 'Name',
-					minWidth: 180,
-					fillspace: 1.5
+					fillspace: 1
 				},
 				{
 					id: 'role_name',
 					header: 'Role',
-					width: 90
-				},
-				{
-					id: 'passport_ID',
-					header: 'Passport ID',
-					width: 130
-				},
-				{
-					id: 'birth_date',
-					header: 'Birth date',
-					width: 130
-				},
-				{
-					id: 'address',
-					header: 'Address',
-					minWidth: 180,
-					fillspace: 1.5
+					width: 100
 				},
 				{
 					id: 'phone_numbers',
 					header: 'Phone number',
-					width: 190
+					width: 150
 				},
 				{
 					id: 'email',
 					header: 'Email',
-					width: 180
+					fillspace: 1
 				},
 				{
 					id: 'edit', 
@@ -73,7 +57,7 @@ export default class TopView extends JetView{
 			],
 			onClick: {
 				'wxi-pencil': (e, id) => {
-					this.editUser(id);
+					this._userForm.showWindow(id);
 				}
 			}
 		};
@@ -107,23 +91,16 @@ export default class TopView extends JetView{
 
 	init() {
 		usersModel.getDataFromServer().then((dbData) => {
-			let usersArr = dbData.json();
-			usersArr = usersArr.map((el) => {
-				el.full_name = el.user_name + ' ' + el.user_surname;
-				const format = webix.Date.dateToStr("%Y-%m-%d");
-				el.birth_date = format(new Date(el.birth_date));
-				return el;
-			});
+			const usersArr = combineUserNamesInArr(dbData);
 			this.usersData = usersArr;
 			$$('usersList').parse(usersArr);
-		});
-		
+		});		
 
 		const authorization = new Authorization();
 
 		this.$$('logoutBtn').attachEvent('onItemClick', () => {
 			const app = this.app;
-			const format = webix.Date.dateToStr("%Y-%m-%d");
+			const format = webix.Date.dateToStr('%Y-%m-%d');
 			const currentDate = format(new Date());
 			
 			authorization.logout({currentDate}).then((response) => {
@@ -134,11 +111,6 @@ export default class TopView extends JetView{
 		});
 
 		this._userForm = this.ui(UserForm);
-	}
-
-	editUser(id) {
-		const user = this.usersData.find(el => el.id == id);
-		this._userForm.showWindow(user);
 	}
 
 	addUser() {

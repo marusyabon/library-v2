@@ -15,7 +15,7 @@ const cookieExtractor = (req) => {
 		const cookieArr = cookie.split(' ');
 		cookieArr.forEach((el) => {
 			if (el.indexOf('jwt') == 0) {
-				token = el.split("=")[1];
+				token = el.split('=')[1];
 			}
 		});
 	}
@@ -23,27 +23,29 @@ const cookieExtractor = (req) => {
 };
 const opts = {};
 opts.jwtFromRequest = cookieExtractor;
-opts.secretOrKey = "your_jwt_secret";
+opts.secretOrKey = 'your_jwt_secret';
 
 passport.use('local', new LocalStrategy({
 	usernameField: 'username',
 	passwordField: 'password',
 }, (username, password, done) => {
 	try {		
-		const query = mysql.format('SELECT * FROM `users` INNER JOIN `capabilities` ON (users.`capabilities_id` = capabilities.`capabilitie_id`) WHERE `email` = ?', [username]);
+		const query = mysql.format('SELECT * FROM `users` INNER JOIN `roles` ON (users.`role_id` = roles.`id`) WHERE `email` = ?', [username]);
 		
 		connection.query(
 			query,
 			function (err, results) {
-				const user_password = results[0] ? results[0].account_password : '';
+				if(!err) {
+					const userPassword = results[0] ? results[0].account_password : '';
 
-				bcrypt.compare(password, user_password, (err, isMatch) => {
-					if (isMatch) {
-						return done(null, results[0]);
-					} else {
-						return done(err, 'Incorrect Username / Password');
-					}
-				});	
+					bcrypt.compare(password, userPassword, (err, isMatch) => {
+						if (isMatch) {
+							return done(null, results[0]);
+						} else {
+							return done(err, 'Incorrect Username / Password');
+						}
+					});
+				}
 			}
 		);		
 	} catch (error) {

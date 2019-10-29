@@ -1,6 +1,6 @@
 import { JetView } from 'webix-jet';
 import usersModel from '../../models/users';
-import {toggleElement, addItem, updateItem} from '../../scripts'; 
+import {toggleElement, addItem, updateItem, combineUserNamesInArr} from '../../scripts'; 
 
 export default class UserForm extends JetView {
 	config() {
@@ -19,7 +19,7 @@ export default class UserForm extends JetView {
 							{ view: 'text', name: 'id', localId: 'id', hidden: true },
 							{ view: 'text', label: 'First name', name: 'user_name', labelWidth: 90, labelAlign: 'right' },
 							{ view: 'text', label: 'Last name', name: 'user_surname', labelWidth: 90, labelAlign: 'right' },
-							{ view: 'combo', label: 'Role', name: 'capabilities_id', labelWidth: 90, labelAlign: 'right', options: [
+							{ view: 'combo', label: 'Role', name: 'role_id', labelWidth: 90, labelAlign: 'right', options: [
 								{id: 1, value: 'reader'},
 								{id: 2, value: 'labrarian'},
 								{id: 3, value: 'admin'}
@@ -32,7 +32,7 @@ export default class UserForm extends JetView {
 							{ view: 'text', label: 'Password', name: 'account_password', localId: 'initial_password', labelWidth: 90, labelAlign: 'right' },
 						],
 						rules: {
-							'capabilities_id': webix.rules.isNotEmpty,
+							'role_id': webix.rules.isNotEmpty,
 							'email': webix.rules.isNotEmpty,
 							'account_password': webix.rules.isNotEmpty,
 						}
@@ -67,27 +67,40 @@ export default class UserForm extends JetView {
 		this.window = this.$$('userWindow');
 	}
 
-	successAction() {
+	successAction(newData) {
 		this.webix.message('Success');
+		const usersArr = combineUserNamesInArr(newData);
+		$$('usersList').parse(usersArr);
 		this.hideWindow();
 	}
 
-	showWindow(user) {	
-		this.isNew = user ? false : true;	
+	showWindow(id) {
+		this.isNew = id ? false : true;	
 
 		if(this.isNew) {
 			this.window.getHead().setHTML('Add user');
 			this.window.getHead().refresh();
 		}
 		else {
-			this.form.setValues(user);
+			usersModel.getItem(id).then((dbData) => {
+				let user = dbData.json();
+				user = this.convertUserBithDate(user);
+				this.form.setValues(user);
+			});
 		}
 
-		const initial_password = this.$$('initial_password');
-		toggleElement(this.isNew, initial_password);
+		const initialPassword = this.$$('initial_password');
+		toggleElement(this.isNew, initialPassword);
 		
 
 		this.getRoot().show();
+	}
+
+	convertUserBithDate(data) {
+		const format = webix.Date.dateToStr('%Y-%m-%d');
+		data['birth_date'] = format(new Date(data.birth_date));
+
+		return data;
 	}
 
 	saveForm() {

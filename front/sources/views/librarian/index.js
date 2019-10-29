@@ -22,8 +22,8 @@ export default class TopView extends JetView{
 			],
 			on:{
 				onMenuItemClick: (id) => {
-					const user_id = this.getParam("id", true);
-					this.app.show(`librarian.index?id=${user_id}/librarian.${id}`);
+					const userId = this.getParam('id', true);
+					this.app.show(`librarian.index?id=${userId}/librarian.${id}`);
 				}
 			}
 		};

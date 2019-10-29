@@ -22,8 +22,8 @@ export default class TopView extends JetView{
 			],
 			on:{
 				onMenuItemClick: (id) => {
-					const user_id = this.getParam("id", true);
-					this.app.show(`reader.index?id=${user_id}/reader.${id}`);
+					const userId = this.getParam("id", true);
+					this.app.show(`reader.index?id=${userId}/reader.${id}`);
 				}
 			}
 		};
@@ -56,7 +56,7 @@ export default class TopView extends JetView{
 
 		this.$$('logoutBtn').attachEvent('onItemClick', () => {
 			const app = this.app;
-			const format = webix.Date.dateToStr("%Y-%m-%d");
+			const format = webix.Date.dateToStr('%Y-%m-%d');
 			const currentDate = format(new Date());
 			
 			authorization.logout({currentDate}).then(() => {

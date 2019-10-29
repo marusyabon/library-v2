@@ -1,3 +1,20 @@
 {
-    "presets": ["@babel/preset-env","es2015", "stage-0"]
+    "presets": [
+        [
+            "env",
+            "@babel/preset-env",
+            "es2015", 
+            "stage-0",
+            {
+                "targets": {
+                    "browsers": [
+                        "last 2 versions",
+                        "IE >= 11"
+                    ]
+                },
+                "modules": false,
+                "loose": true
+            }
+        ]
+    ]
 }

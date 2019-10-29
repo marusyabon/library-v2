@@ -1,74 +1,37 @@
-import {SUCCESS} from './consts';
-
-const toggleElement = (condition, element) => {
+function toggleElement (condition, element) {
 	if (condition) {
 		element.show();
 	}
 	else {
 		element.hide();
 	}
-};
+}
 
-const addItem = (Model, data, successAction) => {
-	Model.addItem(data).then((response) => {
+async function addItem (Model, data, successAction) {
+	await Model.addItem(data);
+	const newData = await Model.getDataFromServer();
+	successAction(newData);
+}
 
-		const status = response.json().serverStatus;
-		if(status == SUCCESS) {
-			Model.getDataFromServer().then(() => {
-				successAction();
-			});			
-		}
+async function updateItem (Model, data, successAction) {
+	await Model.updateItem(data);
+	const newData = await Model.getDataFromServer();
+	successAction(newData);
+}
+
+function combineUserNamesInArr(jsonObj) {
+	let usersArr = jsonObj.json();
+
+	usersArr = usersArr.map((el) => {
+		el['full_name'] = `${el.user_name} ${el.user_surname}`;
+		return el;
 	});
-};
 
-const updateItem = (Model, data, successAction) => {
-	Model.updateItem(data).then((response) => {
-
-		const status = response.json().serverStatus;
-		if(status == SUCCESS) {
-			successAction();
-		}
-	});
-};
-
-const formatDate = (dbDate) => {
-	const currentYear = new Date().getFullYear();
-	const currentMonth = new Date().getMonth();
-	const currentDay = new Date().getDate();
-	const currentHours = new Date().getHours();
-	const currentDateTime = new Date();
-
-	const commentsYear = new Date(dbDate).getFullYear();
-	const commentsMonth = new Date(dbDate).getMonth();
-	const commentsDay = new Date(dbDate).getDate();
-	const commentsHours = new Date(dbDate).getHours();
-	const commentsDateTime = new Date(dbDate);
-
-	let formatDate = webix.Date.strToDate("%i:%s");
-
-	if (currentYear > commentsYear) {
-		formatDate = webix.Date.dateToStr("%d-%m-%y");
-	}
-	else if(currentMonth > commentsMonth) {
-		formatDate = webix.Date.dateToStr("%m-%d");
-	}
-	else if(currentDay > commentsDay) {
-		formatDate = webix.Date.dateToStr("%D, %H:%i");
-	}
-	else if (currentHours > commentsHours){
-		formatDate = webix.Date.dateToStr("%H:%i");
-	}
-	else {
-		const time = (currentDateTime - commentsDateTime)/60000;
-		return `${Math.round(time)} minute(s) ago`;
-	}
-	
-	return formatDate(new Date(dbDate));
-
-};
+	return usersArr;
+}
 
 webix.protoUI({
-	name: "activeList",
+	name: 'activeList',
 	defaults: {
 		autoheight: true,
 		borderless: true,
@@ -78,4 +41,4 @@ webix.protoUI({
 	}
 }, webix.ui.list);
 
-export {toggleElement, addItem, updateItem, formatDate};
+export {toggleElement, addItem, updateItem, combineUserNamesInArr};

@@ -1,95 +1,122 @@
-import { Router } from 'express';
-import connection from '../db';
-import mysql from 'mysql2';
+import {Router} from 'express';
+import Book from '../models/books';
+import mongoose from 'mongoose';
 
 const router = Router();
 
-router.get('/', function (req, res) {
-	const userId = req.query.user_id;
-
-	connection.query('SELECT books.*, (SELECT count(*) FROM likes where likes.book_id = books.id) count_likes, likes.user_id, orders.order_date FROM books LEFT OUTER JOIN likes ON books.id = likes.book_id and likes.user_id = ? LEFT OUTER JOIN orders ON books.id = orders.book_id and orders.user_id = ?', [userId, userId],
-		function (err, results) {
-			if(!err) {
-				res.status(200).send(results);
-			}
-			else {
-				console.log(err);
-				res.status(500);
-			}			
+router.get('/', (req, res) => {
+	Book.find({}, (err, data) => {
+		if (!err) {
+			res.send(data);
 		}
-	);	
+		else {
+			res.status(500).send(err);
+		}
+	});
 });
 
-router.post('/', function (req, res, next) {
-	const book = req.body;
-	const query = mysql.format('INSERT INTO `books` (`cover_photo`, `book_title`, `number_of_pages`, `author_name`, `publishing_house`, `country_of_publication`, `genres`, `available_copies`) VALUES (?,?,?,?,?,?,?,?)', [
-		book.cover_photo,
-		book.book_title,
-		+book.number_of_pages || 0,
-		book.author_name,
-		book.publishing_house,
-		book.country_of_publication,
-		(book.genres),
-		+book.available_copies || 0
-	]);
-
-	connection.query(query,
-		function (err, results) {
-			if (!err) {
-				res.status(200).send(results);
-			}
-			else {
-				console.log(err);
-				res.status(500);
-			}
+router.get('/:bookId', (req, res) => {
+	Book.aggregate([
+		{ $match: { _id: mongoose.Types.ObjectId(req.params.bookId) } },
+		{ $lookup: {
+			from: 'files',
+			localField: '_id',
+			foreignField: 'bookId',
+			as: 'files'
+		}		
+		},
+		{ $addFields: { 'id': '$_id'}},
+		{ $limit: 1 }
+	]).exec((err, data) => {
+		if (!err) {			
+			data[0].files.forEach((el) => {
+				el.id = el._id;
+			});
+			res.send(data[0]);
+			Book.update(
+				{_id: mongoose.Types.ObjectId(req.params.bookId)},
+				{$inc: { viewedTimes: 1 }},
+				(err, data) => {
+					if (!err) {
+						console.log(data);
+					}
+					else {
+						console.log(err);
+					}
+				}
+			);
 		}
-	);
+		else {
+			res.status(500).send(err);
+		}
+	});
 });
 
-router.put('/', function (req, res, next) {
-	const book = req.body;
-	const query = mysql.format('UPDATE `books` SET `cover_photo` = ?, `book_title` = ?, `number_of_pages` = ?, `author_name` = ?, `publishing_house` = ?, `country_of_publication` = ?, `genres` = ?, `available_copies` = ? WHERE `id` = ?', [
-		book.cover_photo,
-		book.book_title,
-		+book.number_of_pages || 0,
-		book.author_name,
-		book.publishing_house,
-		book.country_of_publication,
-		(book.genres),
-		+book.available_copies || 0,
-		book.id
-	]);
-
-	connection.query(query,
-		function (err, results) {
-			if (!err) {
-				res.send(results);
-			}
-			else {
-				console.log(err);
-				res.status(500);
-			}
+router.post('/', (req, res) => {
+	const book = new Book(req.body);
+	book.save((err, results) => {
+		if (!err) {
+			res.send(results);
 		}
-	);
+		else {
+			res.status(500).send(err);
+		}
+	});
 });
 
-router.delete('/', function (req, res) {
-	const bookId = req.body.row;
-	const query = mysql.format("DELETE FROM `books` WHERE `id` = ?", [bookId]);
-
-	connection.query(
-		query,
-		function (err, results) {
+router.put('/', (req, res) => {	
+	Book.findOneAndUpdate(
+		{_id: req.body._id},
+		{
+			$set: {
+				ebook: req.body.ebook,
+				bookTitle: req.body.bookTitle,
+				authorName: req.body.authorName,
+				genres: req.body.genres,
+				countryOfPublication: req.body.countryOfPublication,
+				publishingHouse: req.body.publishingHouse,
+				availableCopies: req.body.availableCopies,
+				numberOfPages: req.body.numberOfPages,
+				yearOfPublication: req.body.yearOfPublication,
+				coverPhoto: req.body.coverPhoto
+			}
+		},
+		(err, data) => {
 			if (!err) {
-				res.send(results);
+				res.send(data);
 			}
 			else {
-				console.log(err);
 				res.status(500).send(err);
 			}
 		}
 	);
 });
 
+router.delete('/:id', (req, res) => {
+	Book.findOneAndDelete(
+		{ _id: req.params.id },
+		(err, data) => {
+			if (!err) {
+				res.send(data);
+			}
+			else {
+				res.status(500).send(err);
+			}
+		}
+	);
+});
+
+router.get('/search/:req', (req, res) => {
+	Book.find( 
+		{ $text: { $search: req.params.req, $caseSensitive: false} }, 
+		(err, data) => {
+			if (!err) {
+				res.send(data);
+			}
+			else {
+				res.status(500).send(err);
+			}
+		});
+});
 
 export default router;
