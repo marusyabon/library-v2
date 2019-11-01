@@ -54,7 +54,7 @@ export default class BookCard extends JetView {
 			type:{
 				height:100
 			},
-			template: "#name#<audio controls src='http://localhost:3000/audio/#id#'></audio>"
+			template: "#name#<audio controls preload='metadata'><source src='http://localhost:3000/audio/#id#' type='audio/mpeg'></audio>"
 		};
 
 		const orderBook = {
@@ -158,7 +158,16 @@ export default class BookCard extends JetView {
 			this.toggleLike(book.userId == this.userId);
 			this.toggleOrder(book.orderDate);
 	
-			this.getRoot().show();
+			this.getRoot().show();			
+			
+			let audioRecords = document.getElementsByTagName('audio');
+			audioRecords = Array.from(audioRecords);
+
+			audioRecords.forEach((el) => {
+				el.addEventListener('seeked', function() {
+					log(this.currentTime);
+				});
+			});
 		});
 	}
 
